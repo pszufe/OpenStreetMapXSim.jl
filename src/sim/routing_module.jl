@@ -208,7 +208,7 @@ function googlemapsroute(pointA, pointB, mapD, network, routingMatchMode, arriva
             end_osmnode   = nearestNode(nodes, ENU(LLA(end_lat, end_lon), OpenStreetMap.center(mapD.bounds)), network)
 
             if start_osmnode != end_osmnode
-                r = routingMode(network, start_osmnode, end_osmnode)
+                r = routingMatchMode(network, start_osmnode, end_osmnode)
                 route[end] != r[1][1] ? append!(route, r[1]) : append!(route, r[1][2:end])
                 osm_distance += r[2]
                 osm_time += r[3] 

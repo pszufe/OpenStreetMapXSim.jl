@@ -316,7 +316,25 @@ desc_df_demostat = Dict(
     :ECYPIMP01  => "Household Population For Period Of Immigration - Before 2001",
     :ECYPIM0105 => "Household Population For Period Of Immigration - 2001 To 2005",
     :ECYPIM0611 => "Household Population For Period Of Immigration - 2006 To 2011",
-    :ECYPIM12CY => "Household Population For Period Of Immigration - 2012 To Present"
+    :ECYPIM12CY => "Household Population For Period Of Immigration - 2012 To Present",
+	:ECYTIMNAM  => "North America",
+	:ECYTIMCAM  => "Central America",
+	:ECYTIMCB   => "Caribbean And Bahamas",
+	:ECYTIMSAM  => "South America",
+	:ECYTIMWEU  => "Western Europe",
+	:ECYTIMEEU  => "Eastern Europe",
+	:ECYTIMNEU  => "Northern Europe",
+	:ECYTIMSEU  => "Southern Europe",
+	:ECYTIMWAF  => "Western Africa",
+	:ECYTIMEAF  => "Eastern Africa",
+	:ECYTIMNAF  => "Northern Africa",
+	:ECYTIMCAF  => "Central Africa",
+	:ECYTIMSAF  => "Southern Africa",
+	:ECYTIMWCA  => "West Central Asia And Middle East",
+	:ECYTIMEA   => "Eastern Asia",
+	:ECYTIMSEA  => "Southeastern Asia",
+	:ECYTIMSA   => "Southern Asia",
+	:ECYTIMOCE  => "Ocean And Other"
 )
 
 

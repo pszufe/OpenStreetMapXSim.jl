@@ -1,6 +1,6 @@
 
 ###################################
-# Agent demographic profile generator and aggregator
+# Agent demographic profile generator
 ###################################
 
 
@@ -17,24 +17,9 @@ mutable struct DemoProfile
     children_age::Array{String} # household data
     imigrant::String
     imigrant_since::String
+	imigrant_region::String # household data
 end
 
-
-
-"""
-Demographic profile generator
-
-Creates socio-demographic profile of an agent based on demostats distributions per DA
-    
-**Arguments**
-* `city_centre_ENU` : city centre ENU coordintes
-* `DA_home` : DA_home unique id selected for an agent
-* `dict_df_DAcentroids` : dictionary of dataframes with :LATITUDE and :LONGITUDE for each DA
-* `dict_df_demostat` : dictionary of dataframes with population statistics for each DA
-* `max_distance_from_cc` : maximum distance from DA_home to city_centre to assume DA_home is in the downtown
-
-Function, in case of any adjustments, should be modified within its body altogether with DemoProfile struct
-"""
 
 # work_industry
 dict_work_industry = Dict(
@@ -94,6 +79,43 @@ dict_children_number_of = Dict(
 )
 
 
+# imigrant_region
+dict_imigrant_region = Dict(
+	:ECYTIMNAM  => "North America",
+	:ECYTIMCAM  => "Central America",
+	:ECYTIMCB   => "Caribbean And Bahamas",
+	:ECYTIMSAM  => "South America",
+	:ECYTIMWEU  => "Western Europe",
+	:ECYTIMEEU  => "Eastern Europe",
+	:ECYTIMNEU  => "Northern Europe",
+	:ECYTIMSEU  => "Southern Europe",
+	:ECYTIMWAF  => "Western Africa",
+	:ECYTIMEAF  => "Eastern Africa",
+	:ECYTIMNAF  => "Northern Africa",
+	:ECYTIMCAF  => "Central Africa",
+	:ECYTIMSAF  => "Southern Africa",
+	:ECYTIMWCA  => "West Central Asia And Middle East",
+	:ECYTIMEA   => "Eastern Asia",
+	:ECYTIMSEA  => "Southeastern Asia",
+	:ECYTIMSA   => "Southern Asia",
+	:ECYTIMOCE  => "Ocean And Other"
+)
+
+
+"""
+Demographic profile generator
+
+Creates socio-demographic profile of an agent based on demostats distributions per DA
+    
+**Arguments**
+* `city_centre_ENU` : city centre ENU coordintes
+* `DA_home` : DA_home unique id selected for an agent
+* `dict_df_DAcentroids` : dictionary of dataframes with :LATITUDE and :LONGITUDE for each DA
+* `dict_df_demostat` : dictionary of dataframes with population statistics for each DA
+* `max_distance_from_cc` : maximum distance from DA_home to city_centre to assume DA_home is in the downtown
+
+Function, in case of any adjustments, should be modified within its body altogether with DemoProfile struct
+"""
 function demographic_profile_generator(city_centre_ENU, DA_home, dict_df_DAcentroids, dict_df_demostat,
                                        max_distance_from_cc)::DemoProfile
     
@@ -171,14 +193,19 @@ function demographic_profile_generator(city_centre_ENU, DA_home, dict_df_DAcentr
     imigrant = sample(["Non-Immigrants", "Immigrants"], fweights(Array(x)))
 
     
-    # imigrant_since
+    # imigrant_since and imigrant_region
     if imigrant == "Immigrants"
         x = df_demostat[[:ECYPIMP01, :ECYPIM0105, :ECYPIM0611, :ECYPIM12CY]]
         imigrant_since = "immigration date: " * sample(["Before 2001", "2001 To 2005", 
                                                         "2006 To 2011", "2012 To Present"], 
                                                        fweights(Array(x)))
+													   
+		x = df_demostat[collect(keys(dict_imigrant_region))]
+		imigrant_region = dict_imigrant_region[sample(names(x), fweights(Array(x)))]
+		
     else
         imigrant_since = ""
+		imigrant_region = ""
     end
     
     return DemoProfile(DA_home, 
@@ -192,11 +219,8 @@ function demographic_profile_generator(city_centre_ENU, DA_home, dict_df_DAcentr
                        children_number_of, 
                        children_age, 
                        imigrant, 
-                       imigrant_since)
+                       imigrant_since,
+					   imigrant_region)
     
 end
-
-
-
-## Agent demographic profile aggregator
 

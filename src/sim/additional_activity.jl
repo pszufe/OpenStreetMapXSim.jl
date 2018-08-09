@@ -160,7 +160,7 @@ function additional_activity_popularstores(agent_profile, DA_home, DA_work,
     push!(popstore, sample(["discount", ""], pweights([p_discount, 1 - p_discount])))
     push!(popstore, sample(["grocery", ""], pweights([p_discount, 1 - p_discount])))
     push!(popstore, sample(["mass merchandise", ""], pweights([p_mass_merchandise, 1 - p_mass_merchandise])))
-    popstore = popstore[popstore .!= ""]; print(popstore)
+    popstore = popstore[popstore .!= ""]; # print(popstore)
     
     
     if size(popstore, 1) > 0
