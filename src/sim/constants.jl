@@ -81,14 +81,14 @@ const imigrant_region = Dict(
 
 
 # shopping probabilities - assuming no differences between females and males 
-p_shoppingcentre = 1/28 # once a month
-p_drugstore = 1/21 # every three weeks
-p_petrol_station = 1/7
-p_supermarket = 1/7
-p_convinience = 1/7
-p_other_retail = 1/28    
-p_grocery = 2/7    
-p_discount = 1/7
-p_mass_merchandise = 1/14
+shopping_probabilities = Dict(:shoppingcentre => 1/28, # once a month
+:drugstore => 1/21, # every three weeks
+:petrol_station => 1/7,
+:supermarket => 1/7,
+:convinience => 1/7,
+:other_retail => 1/28,    
+:grocery => 2/7,  
+:discount => 1/7,
+:mass_merchandise => 1/14)
 
 
