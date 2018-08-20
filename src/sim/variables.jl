@@ -1,6 +1,3 @@
-# maximum distance from DA_home to city_centre to assume DA_home is in the downtown
-max_distance_from_cc = 8000
-
 # quantiles of the home - business distance for agents living in the downtown:
 # agent living in the downtown tend to work in the businesses located from home within 0.5 quantile 
 # of the distribution of all distances home-business for a given industry
