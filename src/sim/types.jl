@@ -8,6 +8,8 @@ mutable struct SimData
     feature_classes::Dict{String,Int}
     feature_to_intersections::Dict{Int,Int}
     DAs_to_intersection::Dict{Int,Int}
+	demographic_data::Dict{Int,Dict{Symbol,Int}}
+	business_data::Dict{Int,Dict{Symbol,String}}
     DAs_flows::SparseMatrixCSC{Float64,Int64}
 end
 

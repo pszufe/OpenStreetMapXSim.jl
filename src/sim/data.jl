@@ -1,3 +1,5 @@
+#Reading OSM map file 
+
 function read_map_file(datapath::String,filename::String; road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))
     #preprocessing map file
     mapdata = OpenStreetMap.parseOSM(datapath*filename)
@@ -13,8 +15,11 @@ function read_map_file(datapath::String,filename::String; road_levels::Set{Int} 
     return (bounds,nodes,roadways,intersections,network)
 end
 
-function read_features_data(datapath::String, filenames::Array{String,1})
-    colnames = [:CATEGORY, :NAME, :LONGITUDE, :LATITUDE]
+#get features 
+
+function read_features_data(datapath::String,
+                            filenames::Array{String,1},
+                            colnames::Array{Symbol,1}) 
     features_data = DataFrames.DataFrame()
     for filename in filenames
         frame = DataFrames.readtable(datapath*filename)
@@ -45,22 +50,25 @@ function features_to_nodes(frame::DataFrames.DataFrame,
 end
 
 function get_features_data(datapath::String, filenames::Array{String,1},
+                        colnames::Array{Symbol,1},
                         nodes::Dict{Int,OpenStreetMap.ENU},
                         network::OpenStreetMap.Network, 
                         bounds::OpenStreetMap.Bounds{OpenStreetMap.LLA})
-    features_dataframe = read_features_data(datapath, filenames)
-    features = features_to_nodes(features_dataframe,nodes,bounds)
+    features_dataframe = OSMSim.read_features_data(datapath, filenames,colnames)
+    features = OSMSim.features_to_nodes(features_dataframe,nodes,bounds)
     feature_classes = Dict{String,Int}(zip(unique(features_dataframe[:CATEGORY]) , Set(1:length(unique(features_dataframe[:CATEGORY])))))
     feature_to_intersections = OpenStreetMap.featuresToGraph(nodes,features, network)
     return features, feature_classes, feature_to_intersections
 end
 
+#finding closest network node for each DA
+
 function DAs_to_nodes(datapath::String, filename::String,
+                    colnames::Array{Symbol,1},
                     nodes::Dict{Int,OpenStreetMap.ENU},
                     network::OpenStreetMap.Network, 
                     bounds::OpenStreetMap.Bounds{OpenStreetMap.LLA})
     DAframe = DataFrames.readtable(datapath*filename)
-    colnames = [:DA_ID, :LONGITUDE, :LATITUDE]
     if !all(in(col, DataFrames.names(DAframe)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -73,22 +81,59 @@ function DAs_to_nodes(datapath::String, filename::String,
     return DAs_to_nodes
 end
 
-function get_sim_data(datapath::String,filenames::Dict{Symbol,Union{String,Array{String,1}}}; road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))::SimData
+#demographic and business data
+
+function dataframe_to_dict(dataframe::DataFrames.DataFrame, id_col::Symbol)
+    colnames = filter!(x->x != id_col,names(dataframe))
+    dict = Dict{Int,Dict{Symbol,Union{Int, String}}}()
+    for row = 1:nrow(dataframe)
+        dict[dataframe[id_col][row]] = Dict{Symbol,Union{Int, String}}(cn => dataframe[row,cn] for cn in colnames)
+    end
+    return dict
+end
+
+function get_demographic_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,Int}}
+    demostats = DataFrames.readtable(datapath*filename)
+    if !all(in(col, DataFrames.names(demostats)) for col in colnames)
+        error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
+    end
+    demostats = demostats[colnames]
+    return OSMSim.dataframe_to_dict(demostats, :DA_ID)
+end
+        
+function get_business_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,String}}
+    demostats = DataFrames.readtable(datapath*filename)
+    if !all(in(col, DataFrames.names(demostats)) for col in colnames)
+        error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
+    end
+    demostats = demostats[colnames]
+    return OSMSim.dataframe_to_dict(demostats, :DA_ID)
+end
+
+function get_sim_data(datapath::String;
+                    filenames::Dict{Symbol,Union{String,Array{String,1}}} = OSMSim.file_names,
+                    colnames::Dict{Symbol,Array{Symbol,1}} = OSMSim.colnames, 
+                    road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))::OSMSim.SimData
     files = collect(values(filenames))
     files = vcat(files...)
     if !all(in(file, readdir(datapath)) for file in files)
         error("file or files not in specified directory!")
     end
     mapfile = filenames[:osm]
-    bounds,nodes,roadways,intersections,network = read_map_file(datapath,mapfile; road_levels = road_levels)
+    bounds,nodes,roadways,intersections,network = OSMSim.read_map_file(datapath, mapfile; road_levels = road_levels)
     features_data = filenames[:features]
-    features, feature_classes, feature_to_intersections = get_features_data(datapath, features_data,nodes,network,bounds)
+    features, feature_classes, OSMSim.feature_to_intersections = get_features_data(datapath, features_data, colnames[:features], nodes,network,bounds)
     DAs_data = filenames[:DAs]
-    DAs_to_intersection = DAs_to_nodes(datapath, DAs_data, nodes,network, bounds)
-    datasets = filenames[:stats]
-    return SimData(bounds, nodes,
+    DAs_to_intersection = OSMSim.DAs_to_nodes(datapath, DAs_data, colnames[:DAs], nodes,network, bounds)
+    demo_stats = filenames[:demo_stats]
+    demographic_data = OSMSim.get_demographic_data(datapath, demo_stats, colnames[:demo_stats])
+	business_stats = filenames[:business_stats]
+    business_data = OSMSim.get_demographic_data(datapath, business_stats, colnames[:business_stats])
+    return OSMSim.SimData(bounds, nodes,
                     roadways, intersections,
                     network,features, feature_classes, 
                     feature_to_intersections, 
-                    DAs_to_intersection) 
+                    DAs_to_intersection,
+					demographic_data,
+					business_data) 
 end

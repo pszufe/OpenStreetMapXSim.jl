@@ -17,7 +17,8 @@ Function, in case of any adjustments, should be modified within its body altoget
 """
 
 
-function demographic_profile(DA_home::Int, demografic_categories, DA_demostat::Dict{Symbol,Real})::AgentProfile
+function demographic_profile(DA_home::Int, DA_demostat::Dict{Symbol,Int};
+							demografic_categories = OSMSim.demografic_categories)::OSMSim.AgentProfile
     # age and gender
     categories = demografic_categories[:age_gender]
     weights = StatsBase.fweights(get.(DA_demostat, collect(keys(categories)), 0))
@@ -64,7 +65,7 @@ function demographic_profile(DA_home::Int, demografic_categories, DA_demostat::D
         weights = StatsBase.fweights(get.(DA_demostat, collect(keys(categories)), 0))
         immigrant_region = StatsBase.sample(collect(values(categories)), weights)
     end
-    return AgentProfile(DA_home, 0, 
+    return OSMSim.AgentProfile(DA_home, 0, 
                         gender,age, marital_status,
                         work_industry, household_income, 
                         household_size,no_of_children,

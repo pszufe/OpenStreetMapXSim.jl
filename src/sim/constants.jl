@@ -5,12 +5,12 @@
   "df_shopping.csv",],
 :flows =>"df_hwflows.csv",
 :DAs => "df_DA_centroids.csv",
-:dem_stats => "df_demostat.csv",
-:work_stats => "df_business.csv"
+:demo_stats => "df_demostat.csv",
+:business_stats => "df_business.csv"
 )
  
 
-demografic_categories = Dict(
+const demografic_categories = Dict(
     :age_gender => Dict(
     :ECYHMA2024 => ("M", (20:24)), #"Male Household Population by Age - 20 To 24",
     :ECYHMA2529 => ("M", (25:29)), #"Male Household Population by Age - 25 To 29",
@@ -132,6 +132,14 @@ demografic_categories = Dict(
     :ECYTIMOCE  => "Ocean And Other"
     ),
 )
+
+ const colnames = Dict(
+ :features => [:CATEGORY, :NAME, :LONGITUDE, :LATITUDE],
+ :DAs => [:DA_ID, :LONGITUDE, :LATITUDE],
+ :demo_stats => vcat([collect(keys(value)) for (key,value) in OSMSim.demografic_categories]..., :DA_ID),
+ :business_stats => [:ISAL_DESC, :ICLS_DESC, :DA_ID , :IEMP_DESC, :NAME],
+ :flows  => [:DA_I, :DA_J, :Flow_Volume]
+ )
 
 # shopping probabilities - assuming no differences between females and males 
 const shopping_probabilities = Dict(:shoppingcentre => 1/28, # once a month
