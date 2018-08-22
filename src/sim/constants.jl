@@ -136,20 +136,40 @@ const demografic_categories = Dict(
  const colnames = Dict(
  :features => [:CATEGORY, :NAME, :LONGITUDE, :LATITUDE],
  :DAs => [:DA_ID, :LONGITUDE, :LATITUDE],
- :demo_stats => vcat([collect(keys(value)) for (key,value) in OSMSim.demografic_categories]..., :DA_ID),
+ :demo_stats => vcat([collect(keys(value)) for (key,value) in OSMSim.demografic_categories]..., :DA_ID,:ECYPOWUSUL ),
  :business_stats => [:ISAL_DESC, :ICLS_DESC, :DA_ID , :IEMP_DESC, :NAME],
  :flows  => [:DA_I, :DA_J, :Flow_Volume]
  )
+ 
+ 
+"""
+Dictionary mapping children age with school category
+* `key` : children age intervals from df_demostat and agent profile
+* `value` : correspoding school
+"""
+const school_category = Dict(
+    (0:3) => "Child Care Facility",
+    (4:5) => "Pre School",
+    (6:14) => "School",
+    #(15:40) => "too old",
+)
+
+# working-out probabilities - TO BE CONFIRMED
+const recreation_probabilities = Dict{Symbol,Dict{Union{String,UnitRange{Int}},Float64}}(
+    :when => Dict("before" => 0.4, "after" => 1.0), # before or after work
+    :gender => Dict("M" => 0.7, "F" => 0.5),        #for males or females
+    :age =>  Dict((15:55) => 0.8, (56:100) => 0.2),
+    :household_income => Dict((0:100000) => 0.2, (100001:1000000) => 0.9)
+)
 
 # shopping probabilities - assuming no differences between females and males 
-const shopping_probabilities = Dict(:shoppingcentre => 1/28, # once a month
-:drugstore => 1/21, # every three weeks
-:petrol_station => 1/7,
-:supermarket => 1/7,
-:convinience => 1/7,
-:other_retail => 1/28,    
-:grocery => 2/7,  
-:discount => 1/7,
-:mass_merchandise => 1/14)
-
+const shopping_probabilities = Dict("shoppingcentre" => 1/28, # once a month
+"drugstore" => 1/21, # every three weeks
+"petrol_station" => 1/7,
+"supermarket" => 1/7,
+"convinience" => 1/7,
+"other_retail" => 1/28,    
+"grocery" => 2/7,  
+"discount" => 1/7,
+"mass_merchandise" => 1/14)
 

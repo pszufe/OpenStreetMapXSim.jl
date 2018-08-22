@@ -1,15 +1,3 @@
-# quantiles of the home - business distance for agents living in the downtown:
-# agent living in the downtown tend to work in the businesses located from home within 0.5 quantile 
-# of the distribution of all distances home-business for a given industry
-q_centre = 0.5
-
-# quantiles of the home - business distance for agents NOT living in the downtown 
-q_other = 0.7
-
-# radius around Home/Work within which an agent might go shopping
-distance_radius_H = 3000      # metres
-distance_radius_W = 2000      # metres
-
 # working-out probabilities - TO BE CONFIRMED
 p_recreation_before = 0.4     # before work
 p_recreation_F = 0.5          # for females

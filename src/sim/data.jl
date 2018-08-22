@@ -122,13 +122,13 @@ function get_sim_data(datapath::String;
     mapfile = filenames[:osm]
     bounds,nodes,roadways,intersections,network = OSMSim.read_map_file(datapath, mapfile; road_levels = road_levels)
     features_data = filenames[:features]
-    features, feature_classes, OSMSim.feature_to_intersections = get_features_data(datapath, features_data, colnames[:features], nodes,network,bounds)
+    features, feature_classes, feature_to_intersections = OSMSim.get_features_data(datapath, features_data, colnames[:features], nodes,network,bounds)
     DAs_data = filenames[:DAs]
     DAs_to_intersection = OSMSim.DAs_to_nodes(datapath, DAs_data, colnames[:DAs], nodes,network, bounds)
     demo_stats = filenames[:demo_stats]
     demographic_data = OSMSim.get_demographic_data(datapath, demo_stats, colnames[:demo_stats])
 	business_stats = filenames[:business_stats]
-    business_data = OSMSim.get_demographic_data(datapath, business_stats, colnames[:business_stats])
+    business_data = OSMSim.get_business_data(datapath, business_stats, colnames[:business_stats])
     return OSMSim.SimData(bounds, nodes,
                     roadways, intersections,
                     network,features, feature_classes, 

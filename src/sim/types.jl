@@ -10,7 +10,7 @@ mutable struct SimData
     DAs_to_intersection::Dict{Int,Int}
 	demographic_data::Dict{Int,Dict{Symbol,Int}}
 	business_data::Dict{Int,Dict{Symbol,String}}
-    DAs_flows::SparseMatrixCSC{Float64,Int64}
+    #DAs_flows::SparseMatrixCSC{Float64,Int64}
 end
 
 mutable struct AgentProfile
