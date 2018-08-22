@@ -115,7 +115,7 @@ returns a category of additional activity choosen by agent.
  -when agents is driving children to school a proper school category is chosen based on agent's children age
  -when agents is shopping a proper store category is chosen based on shopping_probabilities dictionary
 """
-function additional_activity(agent_profile::AgentProfile, before::Bool, 
+function additional_activity(agent_profile::OSMSim.AgentProfile, before::Bool, 
                             school_probability::Float64; 
                             school_category::Dict{UnitRange{Int64},String} = OSMSim.school_category,
                             recreation_probabilities::Dict{Symbol,Dict{Union{String,UnitRange{Int}},Float64}} = OSMSim.recreation_probabilities,

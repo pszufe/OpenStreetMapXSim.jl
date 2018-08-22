@@ -85,9 +85,9 @@ end
 
 function dataframe_to_dict(dataframe::DataFrames.DataFrame, id_col::Symbol)
     colnames = filter!(x->x != id_col,names(dataframe))
-    dict = Dict{Int,Dict{Symbol,Union{Int, String}}}()
+    dict = Dict{Int,Dict{Symbol,Union{Int, String, UnitRange{Int}}}}()
     for row = 1:nrow(dataframe)
-        dict[dataframe[id_col][row]] = Dict{Symbol,Union{Int, String}}(cn => dataframe[row,cn] for cn in colnames)
+        dict[dataframe[id_col][row]] = Dict{Symbol,Union{Int, String, UnitRange{Int}}}(cn => dataframe[row,cn] for cn in colnames)
     end
     return dict
 end
@@ -100,14 +100,38 @@ function get_demographic_data(datapath::String, filename::String, colnames::Arra
     demostats = demostats[colnames]
     return OSMSim.dataframe_to_dict(demostats, :DA_ID)
 end
-        
-function get_business_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,String}}
-    demostats = DataFrames.readtable(datapath*filename)
-    if !all(in(col, DataFrames.names(demostats)) for col in colnames)
+ 
+function string_to_range(string::String)
+    if uppercase(string) == "N/A" || string == ""
+        return (0:0)
+    else
+        punct =[s for s in  collect(string) if ispunct(s)]
+        numbers = split(replace.(string,[punct],"")[1])
+        return (parse(Int,numbers[1]): parse(Int,numbers[2]))
+    end
+end
+ 
+function get_business_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,Union{String, Int,UnitRange{Int}}}}
+    buss_stats = DataFrames.readtable(datapath*filename)
+    if !all(in(col, DataFrames.names(buss_stats)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
-    demostats = demostats[colnames]
-    return OSMSim.dataframe_to_dict(demostats, :DA_ID)
+    buss_stats = buss_stats[colnames]
+	buss_stats[:IEMP_DESC] = [OSMSim.string_to_range(range) for range in buss_stats[:IEMP_DESC]]
+	buss_stats[:no_of_workers] = 0
+    return OSMSim.dataframe_to_dict(buss_stats, :DA_ID)
+end
+
+function get_flow_data(datapath::String, filename::String, colnames::Array{Symbol,1})
+    flows = DataFrames.readtable(datapath*filename)
+    if !all(in(col, DataFrames.names(flows)) for col in colnames)
+        error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
+    end
+    flows = flows[colnames]
+    vals = unique(vcat(flows[:DA_I],flows[:DA_J]))
+    flow_dictionary =  Dict(vals[i] => i for i = 1:length(vals))
+    flow_matrix = sparse([flow_dictionary[val] for  val in flows[:DA_I]],[flow_dictionary[val] for  val in flows[:DA_J]],flows[:Flow_Volume])
+    return flow_dictionary, flow_matrix
 end
 
 function get_sim_data(datapath::String;
@@ -129,11 +153,15 @@ function get_sim_data(datapath::String;
     demographic_data = OSMSim.get_demographic_data(datapath, demo_stats, colnames[:demo_stats])
 	business_stats = filenames[:business_stats]
     business_data = OSMSim.get_business_data(datapath, business_stats, colnames[:business_stats])
+	flow_stats = filenames[:flows]
+	flow_dictionary, flow_matrix = OSMSim.get_flow_data(datapath,flow_stats, colnames[:flows])
     return OSMSim.SimData(bounds, nodes,
                     roadways, intersections,
                     network,features, feature_classes, 
                     feature_to_intersections, 
                     DAs_to_intersection,
 					demographic_data,
-					business_data) 
+					business_data,
+					flow_dictionary, 
+					flow_matrix) 
 end

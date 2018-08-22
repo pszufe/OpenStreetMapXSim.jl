@@ -137,10 +137,54 @@ const demografic_categories = Dict(
  :features => [:CATEGORY, :NAME, :LONGITUDE, :LATITUDE],
  :DAs => [:DA_ID, :LONGITUDE, :LATITUDE],
  :demo_stats => vcat([collect(keys(value)) for (key,value) in OSMSim.demografic_categories]..., :DA_ID,:ECYPOWUSUL ),
- :business_stats => [:ISAL_DESC, :ICLS_DESC, :DA_ID , :IEMP_DESC, :NAME],
+ :business_stats => [:ICLS_DESC, :DA_ID , :IEMP_DESC],
  :flows  => [:DA_I, :DA_J, :Flow_Volume]
  )
  
+ 
+"""
+DA_work selected by randomely choosing the company (business) where agent work based on:
+* agent work_industry profile
+* company size weights represented by randomely estimated number of employees
+
+
+
+Industry dictionary for agent_profile:
+* `key` : industry from agent_profile
+* `value` : industry from business_data
+"""
+const industry = Dict(
+    "Manufacturing"                       => ["Manufacturing", "Unassigned"], 
+    "Transportation And Warehousing"      => ["Transportation And Warehousing", "Unassigned"], 
+    "Arts, Entertainment And Recreation"  => ["Arts, Entertainment and Recreation", "Unassigned"], 
+    "Construction"                        => ["Construction", "Unassigned"], 
+    "Other Services (Except Public Administration)" => 
+        ["Other Services (Except Public Administration)", "Unassigned"], 
+    "Retail Trade"                        => ["Retail Trade", "Unassigned"], 
+    "Wholesale Trade"                     => ["Wholesale Trade", "Unassigned"], 
+    "Professional, Scientific And Technical Services" => 
+        ["Professional, Scientific and Technical Services", "Unassigned"], 
+    "Accommodation And Food Services"     => ["Accommodation and Food Services", "Unassigned"], 
+    "Finance And Insurance"               => ["Finance, Insurance and Real Estate", "Unassigned"], 
+    "Educational Services"                => ["Educational, Health and Social Services", "Unassigned"], 
+    "Agriculture, Forestry, Fishing And Hunting" => 
+        ["Agricultural & Natural Resources", "Unassigned"], 
+    "Administrative And Support, Waste Management And Remediation Services" => 
+        ["Administrative and Support and Waste Management", "Unassigned"], 
+    "Public Administration"               => ["Public Administration", "Unassigned"], 
+    "Information And Cultural Industries" => ["Information", "Unassigned"], 
+    "Management Of Companies And Enterprises" => 
+        ["Management", "Unassigned"], 
+    "Utilities"                           => 
+        ["Other Services (Except Public Administration)", "Professional, Scientific and Technical Services", 
+        "Agricultural & Natural Resources", "Agricultural & Natural Resources"], 
+    "Real Estate And Rental And Leasing"  => ["Finance, Insurance and Real Estate", "Unassigned"], 
+    "Health Care And Social Assistance"   => ["Educational, Health and Social Services", "Unassigned"], 
+    "Mining, Quarrying, And Oil And Gas Extraction" => 
+        ["Agricultural & Natural Resources", "Unassigned"]
+)
+
+
  
 """
 Dictionary mapping children age with school category

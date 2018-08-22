@@ -9,8 +9,9 @@ mutable struct SimData
     feature_to_intersections::Dict{Int,Int}
     DAs_to_intersection::Dict{Int,Int}
 	demographic_data::Dict{Int,Dict{Symbol,Int}}
-	business_data::Dict{Int,Dict{Symbol,String}}
-    #DAs_flows::SparseMatrixCSC{Float64,Int64}
+	business_data::Dict{Int,Dict{Symbol,Union{String,Int,UnitRange{Int}}}}
+	DAs_flow_dictionary::Dict{Int,Int}
+    DAs_flow_matrix::SparseMatrixCSC{Int,Int}
 end
 
 mutable struct AgentProfile
@@ -27,4 +28,13 @@ mutable struct AgentProfile
     imigrant::Bool #true if immigrant, false if not 
     imigrant_since::String
     imigrant_region::String #household data
+end
+
+mutable struct Road
+    start_node::Int
+    fin_node::Int
+    waypoint::Union{String,Void}
+    mode::String
+    route::Array{Int,1}
+    count::Int
 end
