@@ -1,4 +1,4 @@
-struct SimData
+mutable struct SimData
     bounds::OpenStreetMap.Bounds{OpenStreetMap.LLA}
     nodes::Dict{Int,OpenStreetMap.ENU} 
     roadways::Array{OpenStreetMap.Way,1}
@@ -9,7 +9,7 @@ struct SimData
     feature_to_intersections::Dict{Int,Int}
     DAs_to_intersection::Dict{Int,Int}
 	demographic_data::Dict{Int,Dict{Symbol,Int}}
-	business_data::Dict{Int,Dict{Symbol,Union{String,Int,UnitRange{Int}}}}
+	business_data::Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1}
 	DAs_flow_dictionary::Dict{Int,Int}
     DAs_flow_matrix::SparseMatrixCSC{Int,Int}
 end

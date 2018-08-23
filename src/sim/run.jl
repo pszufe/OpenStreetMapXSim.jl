@@ -1,14 +1,16 @@
 function run_once!(sim_data::OSMSim.SimData,
                             buffer::Array{OSMSim.Road,1},
                             nodes_stats::Dict{Int,OSMSim.NodeStat},
-                            flows::Bool
+                            destination_selector::String
                             )  
     loc = OSMSim.start_location(sim_data.demographic_data)
     agent = OSMSim.demographic_profile(loc, sim_data.demographic_data[loc])
-    if flows
+    if destination_selector == "flows"
         OSMSim.destination_location!(agent,sim_data.DAs_flow_dictionary,sim_data.DAs_flow_matrix)
-    else
+    elseif destination_selector == "business"
         OSMSim.destination_location!(agent,sim_data.business_data)
+	else
+		OSMSim.destination_location!(agent,sim_data)
     end
     #before work
     activity = OSMSim.additional_activity(agent,true)
@@ -32,12 +34,15 @@ function run_once!(sim_data::OSMSim.SimData,
 end
 
 function run_simulation(sim_data::OSMSim.SimData,
-            flows::Bool,
+            destination_selector::String,
             N::Int)
+	if !in(destination_selector,["flows","business","both"])
+		error("destination_selector not declared properly! It can only takes flows, business or both values!")
+	end
     nodes_stats = OSMSim.node_statistics(sim_data)
     buffer = Array{OSMSim.Road,1}()
     for i = 1:N
-        OSMSim.run_once!(sim_data,buffer,nodes_stats,flows)
+        OSMSim.run_once!(sim_data,buffer,nodes_stats,destination_selector)
     end
     return nodes_stats,buffer
 end

@@ -12,6 +12,9 @@ function read_map_file(datapath::String,filename::String; road_levels::Set{Int} 
     intersections = OpenStreetMap.findIntersections(roadways)
     segments = OpenStreetMap.findSegments(nodes,roadways,intersections)
     network = OpenStreetMap.createGraph(segments,intersections,OpenStreetMap.classifyRoadways(roadways))
+	#remove unuseful nodes
+	roadways_nodes = unique(vcat(collect(way.nodes for way in roadways)...))
+	nodes = Dict(key => nodes[key] for key in roadways_nodes)
     return (bounds,nodes,roadways,intersections,network)
 end
 
@@ -85,9 +88,9 @@ end
 
 function dataframe_to_dict(dataframe::DataFrames.DataFrame, id_col::Symbol)
     colnames = filter!(x->x != id_col,names(dataframe))
-    dict = Dict{Int,Dict{Symbol,Union{Int, String, UnitRange{Int}}}}()
+    dict = Dict{Int,Dict{Symbol,Int}}()
     for row = 1:nrow(dataframe)
-        dict[dataframe[id_col][row]] = Dict{Symbol,Union{Int, String, UnitRange{Int}}}(cn => dataframe[row,cn] for cn in colnames)
+        dict[dataframe[id_col][row]] = Dict{Symbol,Int}(cn => dataframe[row,cn] for cn in colnames)
     end
     return dict
 end
@@ -111,7 +114,7 @@ function string_to_range(string::String)
     end
 end
  
-function get_business_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,Union{String, Int,UnitRange{Int}}}}
+function get_business_data(datapath::String, filename::String, colnames::Array{Symbol,1})
     buss_stats = DataFrames.readtable(datapath*filename)
     if !all(in(col, DataFrames.names(buss_stats)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
@@ -119,7 +122,13 @@ function get_business_data(datapath::String, filename::String, colnames::Array{S
     buss_stats = buss_stats[colnames]
 	buss_stats[:IEMP_DESC] = [OSMSim.string_to_range(range) for range in buss_stats[:IEMP_DESC]]
 	buss_stats[:no_of_workers] = 0
-    return OSMSim.dataframe_to_dict(buss_stats, :DA_ID)
+    business_array = Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1}()
+    sizehint!(business_array,DataFrames.nrow(buss_stats))
+    for i = 1:DataFrames.nrow(buss_stats)
+        business = Dict{Symbol,Union{String, Int,UnitRange{Int}}}(colname => buss_stats[colname][i] for colname in DataFrames.names(buss_stats))
+        push!(business_array, business)
+    end
+    return business_array
 end
 
 function get_flow_data(datapath::String, filename::String, colnames::Array{Symbol,1})
