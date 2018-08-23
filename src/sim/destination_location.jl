@@ -19,8 +19,8 @@ Selects destination DA_work for an agent by randomly choosing the company he wor
 """
 
 function destination_location!(agent_profile::OSMSim.AgentProfile,
-                            business_data::Dict{Int64,Dict{Symbol,Union{Int64, String, UnitRange{Int64}}}},
-                            industry::Dict{String,Array{String,1}})
+                            business_data::Dict{Int64,Dict{Symbol,Union{Int64, String, UnitRange{Int64}}}};
+                            industry::Dict{String,Array{String,1}} = OSMSim.industry)
     index  = findin([ds[:ICLS_DESC] for ds in collect(values(business_data))], Set(industry[agent_profile.work_industry]))
     DA_work = collect(keys(business_data))[rand(index)]
     if business_data[DA_work][:no_of_workers] + 1 > maximum(business_data[DA_work][:IEMP_DESC])

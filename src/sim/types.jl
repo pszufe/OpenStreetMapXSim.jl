@@ -1,4 +1,4 @@
-mutable struct SimData
+struct SimData
     bounds::OpenStreetMap.Bounds{OpenStreetMap.LLA}
     nodes::Dict{Int,OpenStreetMap.ENU} 
     roadways::Array{OpenStreetMap.Way,1}
@@ -37,4 +37,11 @@ mutable struct Road
     mode::String
     route::Array{Int,1}
     count::Int
+end
+
+mutable struct NodeStat
+    count::Int
+    latitude::Float64
+    longitude::Float64
+    agents_data::DataFrames.DataFrame
 end

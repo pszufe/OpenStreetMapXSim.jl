@@ -131,12 +131,17 @@ const demografic_categories = Dict(
     :ECYTIMSA   => "Southern Asia",
     :ECYTIMOCE  => "Ocean And Other"
     ),
+	:misc => Dict( #additional columns used in simulation
+    :DA_ID     => "Dissemination Area id",
+    :ECYPOWUSUL => "HH Pop 15 years or over by place of work - Worked At Usual Place",
+    :ECYTRADRIV => "HH Pop 15 years or over with usual place of work and no fixed place of work - Travel To Work By Car As Driver",
+    ),
 )
 
  const colnames = Dict(
  :features => [:CATEGORY, :NAME, :LONGITUDE, :LATITUDE],
  :DAs => [:DA_ID, :LONGITUDE, :LATITUDE],
- :demo_stats => vcat([collect(keys(value)) for (key,value) in OSMSim.demografic_categories]..., :DA_ID,:ECYPOWUSUL ),
+ :demo_stats => vcat([collect(keys(value)) for (key,value) in OSMSim.demografic_categories]...,),
  :business_stats => [:ICLS_DESC, :DA_ID , :IEMP_DESC],
  :flows  => [:DA_I, :DA_J, :Flow_Volume]
  )
@@ -207,13 +212,16 @@ const recreation_probabilities = Dict{Symbol,Dict{Union{String,UnitRange{Int}},F
 )
 
 # shopping probabilities - assuming no differences between females and males 
-const shopping_probabilities = Dict("shoppingcentre" => 1/28, # once a month
+const shopping_probabilities = Dict("shopping centre" => 1/28, # once a month
 "drugstore" => 1/21, # every three weeks
-"petrol_station" => 1/7,
+"petrol station" => 1/7,
 "supermarket" => 1/7,
 "convinience" => 1/7,
-"other_retail" => 1/28,    
+"other retail" => 1/28,    
 "grocery" => 2/7,  
 "discount" => 1/7,
-"mass_merchandise" => 1/14)
+"mass merchandise" => 1/14)
 
+const school_probability = .41
+
+const weight_var = :ECYTRADRIV
