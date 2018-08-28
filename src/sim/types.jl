@@ -12,6 +12,7 @@ mutable struct SimData
 	business_data::Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1}
 	DAs_flow_dictionary::Dict{Int,Int}
     DAs_flow_matrix::SparseMatrixCSC{Int,Int}
+	googleapi_key::Union{Void,String} 
 end
 
 mutable struct AgentProfile
