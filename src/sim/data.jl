@@ -149,9 +149,16 @@ function get_sim_data(datapath::String;
                     road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))::OSMSim.SimData
     files = collect(values(filenames))
     files = vcat(files...)
-    if !all(in(file, readdir(datapath)) for file in files)
-        error("file or files not in specified directory!")
-    end
+	files_in_dir = Set(readdir(datapath))
+	found_error = false
+	for filename in files
+		if !in(filename, files_in_dir)    
+			println("The file $filename is missing in the directory $datapath")
+			found_error = true
+		end	
+	end
+	found_error && error("Some file(s) not found in $datapath")
+	
     mapfile = filenames[:osm]
     bounds,nodes,roadways,intersections,network = OSMSim.read_map_file(datapath, mapfile; road_levels = road_levels)
     features_data = filenames[:features]
