@@ -23,16 +23,16 @@ end
 function read_features_data(datapath::String,
                             filenames::Array{String,1},
                             colnames::Array{Symbol,1}) 
-    features_data = DataFrames.DataFrame()
+    features_data = DataFrames.DataFrame[]
     for filename in filenames
         frame = DataFrames.readtable(datapath*filename)
         if !all(in(col, DataFrames.names(frame)) for col in colnames)
             error("$(filename) has wrong column names! Data Frame should contain $(String.(colnames).*" "... )columns!")
         end
         frame = frame[colnames]
-        features_data = vcat(features_data,frame)
+        push!(features_data,frame)
     end
-    return features_data
+    return vcat(features_data...)
 end
 
 function features_to_nodes(frame::DataFrames.DataFrame,
