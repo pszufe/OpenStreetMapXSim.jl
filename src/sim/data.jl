@@ -153,7 +153,8 @@ function get_sim_data(datapath::String;
 	files_in_dir = Set(readdir(datapath))
 	found_error = false
 	for filename in files
-		if !in(filename, files_in_dir)    
+		check = filename != filenames[:googleapi_key] || (filename == filenames[:googleapi_key] && google)
+		if !in(filename, files_in_dir) && check
 			println("The file $filename is missing in the directory $datapath")
 			found_error = true
 		end	
