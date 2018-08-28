@@ -146,7 +146,8 @@ end
 function get_sim_data(datapath::String;
                     filenames::Dict{Symbol,Union{String,Array{String,1}}} = OSMSim.file_names,
                     colnames::Dict{Symbol,Array{Symbol,1}} = OSMSim.colnames, 
-                    road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))::OSMSim.SimData
+                    road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)),
+					google::Bool = false)::OSMSim.SimData
     files = collect(values(filenames))
     files = vcat(files...)
     if !all(in(file, readdir(datapath)) for file in files)
@@ -164,6 +165,16 @@ function get_sim_data(datapath::String;
     business_data = OSMSim.get_business_data(datapath, business_stats, colnames[:business_stats])
 	flow_stats = filenames[:flows]
 	flow_dictionary, flow_matrix = OSMSim.get_flow_data(datapath,flow_stats, colnames[:flows])
+	googleapi_key = nothing
+	if google
+		if !haskey(filenames, :googleapi_key)
+			error("Google API key not defined! Declare one or run simulation based on OSM Data only!")
+		end
+		apikey = filenames[:googleapi_key]
+		googleapi_key = open(datapath*apikey) do file
+			read(file, String)
+		end
+	end
     return OSMSim.SimData(bounds, nodes,
                     roadways, intersections,
                     network,features, feature_classes, 
@@ -172,5 +183,6 @@ function get_sim_data(datapath::String;
 					demographic_data,
 					business_data,
 					flow_dictionary, 
-					flow_matrix) 
+					flow_matrix,
+					googleapi_key) 
 end

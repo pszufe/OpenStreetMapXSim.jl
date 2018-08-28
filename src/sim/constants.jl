@@ -6,7 +6,8 @@
 :flows =>"df_hwflows.csv",
 :DAs => "df_DA_centroids.csv",
 :demo_stats => "df_demostat.csv",
-:business_stats => "df_business.csv"
+:business_stats => "df_business.csv",
+:googleapi_key => "googleapi.key"
 )
  
 
