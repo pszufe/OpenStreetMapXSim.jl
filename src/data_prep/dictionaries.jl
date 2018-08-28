@@ -1,149 +1,29 @@
+###################################
+### Datasets dictionaries
+###################################
+
+
 
 ###################################
-# Datasets dictionary
-###################################
+### Businesses data dictionary
 
-
-###################################
-# Business data dictionary
-desc_df_business = Dict(
-    :PRCDDA    => "Dissemination Area", 
+desc_df_businesses = Dict(
+	:DA_ID     => "Dissemination Area id",
     :LATITUDE  => "Latitude",
     :LONGITUDE => "Longitude",
-    :CENTROID  => "Centroid",
-    :BUSNAME   => "Business name",
+    :NAME   => "Business name",
     :IEMP_DESC => "Number of employees",
     :ISAL_DESC => "Volume of annual sales",
     :ICLS_DESC => "Industry"
 )
 
 
-###################################
-# Popular stores dictionary - based on df_business
-desc_df_business_popstores = Dict(
-    "7-ELEVEN" => "convinience",
-    "DOLLARAMA" => "discount",
-    "PETRO-CANADA" => "petrol station",
-    "RED RIVER CO-OP LTD" => "petrol station",
-    "SHOPPERS DRUG MART" => "drugstore",
-    "SAFEWAY" => "supermarket",
-    "REXALL PHARMA PLUS" => "drugstore",
-    "MAC'S CONVENIENCE STORE" => "convinience",
-    "SOBEYS" => "supermarket",
-    "HUSKY GAS STATION" => "petrol station",
-    "DULUX PAINTS" => "other retail",
-    "M&M FOOD MARKET" => "grocery",
-    "DOLLAR TREE" => "discount",
-    "WALMART SUPERCENTER" => "mass merchandise",
-    "GIANT TIGER" => "discount",
-    "REAL CANADIAN SUPERSTORE" => "mass merchandise",
-    "BULK BARN FOODS" => "other retail",
-    "MEDICINE SHOPPE" => "drugstore",
-    "CANADIAN TIRE" => "other retail",
-    "BRICK" => "other retail",
-    "MC MUNN & YATES BUILDING SUPLS" => "other retail",
-    "HOME DEPOT" => "other retail",
-    "SHELL CANADA" => "petrol station",
-    "FOODFARE STORES" => "grocery",
-    "HUSKY" => "petrol station",
-    "DRUGSTORE PHARMACY" => "drugstore",
-    "PRESCRIPTION SHOP" => "drugstore",
-    "FAMILY FOODS" => "grocery",
-    "JYSK" => "other retail",
-    "IGA" => "supermarket",
-    "COSTCO WHOLESALE" => "mass merchandise",
-    "BEST BUY" => "other retail",
-    "NO FRILLS" => "supermarket",
-    "IKEA" => "other retail",
-    "LEON'S" => "other retail",
-    "RONA" => "other retail",
-    "VALUE VILLAGE" => "discount",
-    "SALVATION ARMY THRIFT STORE" => "discount",
-    "MCNALLY ROBINSON BOOKSELLERS" => "other retail",
-    "MC NALLY ROBINSON FOR KIDS" => "other retail",
-    "UNIVERSITY-WINNIPEG BOOKSTORE" => "other retail",
-    "HULL'S FAMILY BOOKSTORE" => "other retail",
-    "STAPLES" => "other retail",
-    "SAVE-ON-FOODS" => "supermarket",
-    "FAMILY FOODS" => "supermarket",
-    "DAKOTA FAMILY FOODS" => "supermarket",
-    "LOW'S FAMILY FOODS" => "supermarket",
-    "LUCKY SUPERMARKET" => "supermarket",
-    "GILL'S SUPERMARKET" => "supermarket",
-    "BROTHERS PHARMACY LTD" => "drugstore",
-    "CD WHYTE RIDGE PHARMACY" => "drugstore",
-    "CINDEN PHARMACY" => "drugstore",
-    "DAKOTA PHARMACY" => "drugstore",
-    "EBBELING PHARMACY" => "drugstore",
-    "HEALTH CENTRAL PHARMACY INC" => "drugstore",
-    "ISLAND LAKES PHARMACY" => "drugstore",
-    "MUNROE PHARMACY" => "drugstore",
-    "PEOPLE'S PHARMACY" => "drugstore",
-    "VIDEL PHARMACY" => "drugstore",
-    "TACHE PHARMACY & MEDICAL SUPLS" => "drugstore",
-    "ABERDEEN PHARMACY" => "drugstore",
-    "GOOD SHEPHERD PHARMACY" => "drugstore",
-    "MANDALAY PHARMACY" => "drugstore",
-    "SOUTH SHERBROOK HEALTH CTR" => "drugstore",
-    "EMPIRE DRUGS LTD" => "drugstore",
-    "MEYER'S DRUGS LTD" => "drugstore",
-    "BROWN'S DRUG STORE" => "drugstore",
-    "PRESCRIPTION SHOP" => "drugstore",
-    "LONDON DRUGS" => "drugstore",
-    "PEMBINA DRUGS" => "drugstore",
-    "PHARMASAVE ASSINIBOINE PHARM" => "drugstore",
-    "OAKFIELD REMEDY'S RX" => "drugstore",
-    "POSITIVE HEALTH REMEDY'S RX" => "drugstore",
-    "REXALL PHARMA PLUS" => "drugstore",
-    "DOMO" => "convinience",
-    "CANADIAN TIRE GAS+" => "petrol station",
-    "ESSO" => "petrol station",
-    "ST ADOLPHE ESSO" => "petrol station",
-    "PORTAGE ESSO" => "petrol station",
-    "NOTRE DAME ESSO ON THE RUN" => "petrol station",
-    "KING EDWARD ESSO" => "petrol station",
-    "TAYLOR ESSO" => "petrol station",
-    "PEMBINA ESSO ON THE RUN" => "petrol station",
-    "ST ANNE'S ROAD ESSO" => "petrol station",
-    "TRANSCONIA ESSO" => "petrol station",
-    "CHANCELLOR ESSO" => "petrol station",
-    "ABAS ESSO" => "petrol station",
-    "AIRPORT ESSO" => "petrol station",
-    "WAVERLEY ESSO" => "petrol station",
-    "KENASTON ESSO" => "petrol station",
-    "SETTLER'S ESSO" => "petrol station",
-    "ST PAUL ESSO" => "petrol station",
-    "SHELL CANADA PRODUCTS" => "petrol station",
-    "SHELL FOOD STORE" => "petrol station",
-    "SHELL CANADA" => "petrol station",
-    "FORREST & MAIN SHELL" => "petrol station",
-    "SOUTHDALE SHELL SELECT" => "petrol station",
-    "PROVENCHER BLVD SHELL" => "petrol station",
-    "REGENT SHELL" => "petrol station"
-)
-
 
 ###################################
-# Daytimepop data dictionary
-desc_df_daytimep = Dict(
-    :PRCDDA     => "Dissemination Area",
-    :ECYTOTPOPD => "Total Household Population",
-    :ECYDAYPOP  => "Total Daytime Population",
-    :ECYHOMEPOP => "Total Daytime Population at Home",
-    :ECYHOM014  => "Total Daytime Population at Home Aged 0-14",
-    :ECYHOM1564 => "Total Daytime Population at Home Aged 15-64",
-    :ECYHOM65P  => "Total Daytime Population at Home Aged 65 and Over",
-    :ECYWORKPOP => "Total Daytime Population at Work",
-    :ECYWKPUSP  => "Total Daytime Population at Work at Usual Place",
-    :ECYWKPMOB  => "Total Daytime Population at Work Mobile",
-    :ECYWKPHOM  => "Total Daytime Population at Work at Home"
-)
+### Demographics data dictionary
 
-
-###################################
-# Demostat data dictionary
-desc_df_demostat = Dict(
-    :PRCDDA     => "Dissemination Area",
+desc_df_demographics = Dict(
+    :DA_ID     => "Dissemination Area id",
     :ECYBASHHD  => "Total Households",
     :ECYBASHPOP => "Total Household Population",
     :ECYBAS15HP => "Total Household Population 15 Years Or Over",
@@ -318,8 +198,8 @@ desc_df_demostat = Dict(
     :ECYPIM0611 => "Household Population For Period Of Immigration - 2006 To 2011",
     :ECYPIM12CY => "Household Population For Period Of Immigration - 2012 To Present",
 	:ECYTIMNAM  => "North America",
-	:ECYTIMCAM  => "Central America",
 	:ECYTIMCB   => "Caribbean And Bahamas",
+	:ECYTIMCAM  => "Central America",
 	:ECYTIMSAM  => "South America",
 	:ECYTIMWEU  => "Western Europe",
 	:ECYTIMEEU  => "Eastern Europe",
@@ -338,88 +218,274 @@ desc_df_demostat = Dict(
 )
 
 
+
 ###################################
-# H-W flow journey matrix dictionary
+### Home-Work flow journey matrix dictionary
+
 desc_df_hwflows = Dict(
-    :DA_home                   => "Unique home DA id (PRCDDA)",
-    :DA_work                   => "Unique work DA id (PRCDDA)",
-    :FlowVolume                => "Flow Volume of commuters from DA_home to DA_work", 
-    :FlowVolume_sum_perDAhome  => "Total Flow Volume of commuters from a given DA_home", 
-    :weight_DA_work            => "Probability of commuting to each of the DA_work from a given DA_home", 
-    :FlowVolume_sum_perDAwork  => "Total Flow Volume of commuters to a given DA_Work"
+    :DA_I		=> "Unique home DA id (PRCDDA)",
+    :DA_J	    => "Unique work DA id (PRCDDA)",
+    :Sum_Value  => "Flow Volume of commuters from DA_home to DA_work",
 )
 
 
+
 ###################################
-# Schools data dictionary
+### Schools data dictionary
+
 desc_df_schools = Dict(
     :NAME      => "School name",
-    :STNAME    => "Street name",
     :LONGITUDE => "Longitude",
     :LATITUDE  => "Latitude",
-    :FEATTYP   => "School type", 
-    :SUBCAT    => "School subcategory"
+    :CATEGORY  => "School subcategory"
 )
 
-
-###################################
-# Traffic data dictionary
-desc_df_traffic = Dict(
-    :STREET    => "Name of the street the count was taken on",
-    :TRAFFIC1  => "Most recent traffic count",
-    :CNTTYPE1  => "Type of count",
-    :CNT1YEAR  => "Year this count was taken",
-    :CROSSST   => "Nearest cross street to the count",
-    :CROSSDIR  => "Direction from the count to the cross street",
-    :CROSSDIST => "Distance, in miles, to the nearest cross street",
-    :LONGITUDE => "Longitude of traffic point",
-    :LATITUDE  => "Latitude of traffic point"
+SchoolSubcat = Dict(
+    :7372001 => "Unspecified",
+    :7372002 => "School",
+    :7372003 => "Child Care Facility",
+    :7372004 => "Pre School",
+    :7372005 => "Primary School",
+    :7372006 => "High School",
+    :7372007 => "Senior High School",
+    :7372008 => "Vocational Training",
+    :7372009 => "Technical School",
+    :7372010 => "Language School",
+    :7372011 => "Sport School",
+    :7372012 => "Art School",
+    :7372013 => "Special School",
+    :7372014 => "Middle School",
+    :7372015 => "Culinary School",
+    :7372016 => "Driving School",
+    :7377001 => "Unspecified",
+    :7377002 => "College/University",
+    :7377003 => "Junior College/Community College"
 )
+
 
 
 ###################################
 # Schopping centres data dictionary
+
 desc_df_shopping = Dict(
-    :PRCDDA    => "Dissemination Area",
-    :centre_nm => "Shopping Centre Name",
-    :address   => "Address",
+    :NAME => "Shopping Centre Name",
     :LATITUDE  => "Latitude",
     :LONGITUDE => "Longitude",
-    :centre_typ => "Centre Type",
-    :gla       => "Gross Leaseable Area",
-    :totstores => "Total Number of Stores",
-    :parking   => "Total Number of Parking Spaces",
-    :anch_cnt  => "Number of Anchor Stores"
+    :CENTRE_TYPE => "Centre Type",
+    :AREA       => "Gross Leaseable Area",
+    :TOTSTORES => "Total Number of Stores",
+    :PARKING   => "Total Number of Parking Spaces",
+    :ANCH_CNT  => "Number of Anchor Stores"
 )
+
 
 
 ###################################
-# Vehicles data dictionary
-desc_df_vehicles = Dict(
-    :PRCDDA     => "Dissemination Area",
-    :RSINDSTRYT => "Retail Industry",
-    :RSCAR____T => "Retail Car",
-    :RSSUBCOM_T => "Retail Subcompact",
-    :RSCMPACT_T => "Retail Compact",
-    :RSINTMDT_T => "Retail Intermediate",
-    :RSFULSIZET => "Retail Full Size",
-    :RSLUXURY_T => "Retail Luxury",
-    :RSMEDLUX_T => "Retail Medium Luxury",
-    :RSHILUX__T => "Retail High Luxury",
-    :RSLUXSPT_T => "Retail Luxury Sport",
-    :RSSPORT__T => "Retail Sport",
-    :RSTRUCK__T => "Retail Truck",
-    :RSCMPSUV_T => "Retail Compact SUV",
-    :RSINTSUV_T => "Retail Intermediate SUV",
-    :RSLRGSUV_T => "Retail Large SUV",
-    :RSLUXSUV_T => "Retail Luxury SUV",
-    :RSSMLPKUPT => "Retail Small Pickup",
-    :RSLRGPKUPT => "Retail Large Pickup",
-    :RSSMLVAN_T => "Retail Small Van",
-    :RSLRGVAN_T => "Retail Large Van",
-    :RSMEDHVY_T => "Retail Medium/Heavy",
-    :RSINDSTRYT_min_RSLRGVAN_T_RSMEDHVY_T => "Retail Industry minus large van and medium/heavy truck"
+### Recreation complexes data dictionary
+
+desc_df_recreation = Dict(
+        :NAME => "Complex name",
+        :ARENA => "Arena",
+        :INDOOR_POOL => "Indoor Pool",
+        :FITNESS => "Fitness Leisure Centre",
+        :LOCATION => "Location",
 )
 
 
 
+###################################
+### Popular stores dictionary - based on df_businesses
+
+desc_df_popstores = Dict(
+    "7-ELEVEN" => "convinience",
+    "DOLLARAMA" => "discount",
+    "PETRO-CANADA" => "petrol station",
+    "RED RIVER CO-OP LTD" => "petrol station",
+    "SHOPPERS DRUG MART" => "drugstore",
+    "SAFEWAY" => "supermarket",
+    "REXALL PHARMA PLUS" => "drugstore",
+    "MAC'S CONVENIENCE STORE" => "convinience",
+    "SOBEYS" => "supermarket",
+    "HUSKY GAS STATION" => "petrol station",
+    "DULUX PAINTS" => "other retail",
+    "M&M FOOD MARKET" => "grocery",
+    "DOLLAR TREE" => "discount",
+    "WALMART SUPERCENTER" => "mass merchandise",
+    "GIANT TIGER" => "discount",
+    "REAL CANADIAN SUPERSTORE" => "mass merchandise",
+    "BULK BARN FOODS" => "other retail",
+    "MEDICINE SHOPPE" => "drugstore",
+    "CANADIAN TIRE" => "other retail",
+    "BRICK" => "other retail",
+    "MC MUNN & YATES BUILDING SUPLS" => "other retail",
+    "HOME DEPOT" => "other retail",
+    "SHELL CANADA" => "petrol station",
+    "FOODFARE STORES" => "grocery",
+    "HUSKY" => "petrol station",
+    "DRUGSTORE PHARMACY" => "drugstore",
+    "PRESCRIPTION SHOP" => "drugstore",
+    "FAMILY FOODS" => "grocery",
+    "JYSK" => "other retail",
+    "IGA" => "supermarket",
+    "COSTCO WHOLESALE" => "mass merchandise",
+    "BEST BUY" => "other retail",
+    "NO FRILLS" => "supermarket",
+    "IKEA" => "other retail",
+    "LEON'S" => "other retail",
+    "RONA" => "other retail",
+    "VALUE VILLAGE" => "discount",
+    "SALVATION ARMY THRIFT STORE" => "discount",
+    "MCNALLY ROBINSON BOOKSELLERS" => "other retail",
+    "MC NALLY ROBINSON FOR KIDS" => "other retail",
+    "UNIVERSITY-WINNIPEG BOOKSTORE" => "other retail",
+    "HULL'S FAMILY BOOKSTORE" => "other retail",
+    "STAPLES" => "other retail",
+    "SAVE-ON-FOODS" => "supermarket",
+    "FAMILY FOODS" => "supermarket",
+    "DAKOTA FAMILY FOODS" => "supermarket",
+    "LOW'S FAMILY FOODS" => "supermarket",
+    "LUCKY SUPERMARKET" => "supermarket",
+    "GILL'S SUPERMARKET" => "supermarket",
+    "BROTHERS PHARMACY LTD" => "drugstore",
+    "CD WHYTE RIDGE PHARMACY" => "drugstore",
+    "CINDEN PHARMACY" => "drugstore",
+    "DAKOTA PHARMACY" => "drugstore",
+    "EBBELING PHARMACY" => "drugstore",
+    "HEALTH CENTRAL PHARMACY INC" => "drugstore",
+    "ISLAND LAKES PHARMACY" => "drugstore",
+    "MUNROE PHARMACY" => "drugstore",
+    "PEOPLE'S PHARMACY" => "drugstore",
+    "VIDEL PHARMACY" => "drugstore",
+    "TACHE PHARMACY & MEDICAL SUPLS" => "drugstore",
+    "ABERDEEN PHARMACY" => "drugstore",
+    "GOOD SHEPHERD PHARMACY" => "drugstore",
+    "MANDALAY PHARMACY" => "drugstore",
+    "SOUTH SHERBROOK HEALTH CTR" => "drugstore",
+    "EMPIRE DRUGS LTD" => "drugstore",
+    "MEYER'S DRUGS LTD" => "drugstore",
+    "BROWN'S DRUG STORE" => "drugstore",
+    "PRESCRIPTION SHOP" => "drugstore",
+    "LONDON DRUGS" => "drugstore",
+    "PEMBINA DRUGS" => "drugstore",
+    "PHARMASAVE ASSINIBOINE PHARM" => "drugstore",
+    "OAKFIELD REMEDY'S RX" => "drugstore",
+    "POSITIVE HEALTH REMEDY'S RX" => "drugstore",
+    "REXALL PHARMA PLUS" => "drugstore",
+    "DOMO" => "convinience",
+    "CANADIAN TIRE GAS+" => "petrol station",
+    "ESSO" => "petrol station",
+    "ST ADOLPHE ESSO" => "petrol station",
+    "PORTAGE ESSO" => "petrol station",
+    "NOTRE DAME ESSO ON THE RUN" => "petrol station",
+    "KING EDWARD ESSO" => "petrol station",
+    "TAYLOR ESSO" => "petrol station",
+    "PEMBINA ESSO ON THE RUN" => "petrol station",
+    "ST ANNE'S ROAD ESSO" => "petrol station",
+    "TRANSCONIA ESSO" => "petrol station",
+    "CHANCELLOR ESSO" => "petrol station",
+    "ABAS ESSO" => "petrol station",
+    "AIRPORT ESSO" => "petrol station",
+    "WAVERLEY ESSO" => "petrol station",
+    "KENASTON ESSO" => "petrol station",
+    "SETTLER'S ESSO" => "petrol station",
+    "ST PAUL ESSO" => "petrol station",
+    "SHELL CANADA PRODUCTS" => "petrol station",
+    "SHELL FOOD STORE" => "petrol station",
+    "SHELL CANADA" => "petrol station",
+    "FORREST & MAIN SHELL" => "petrol station",
+    "SOUTHDALE SHELL SELECT" => "petrol station",
+    "PROVENCHER BLVD SHELL" => "petrol station",
+    "REGENT SHELL" => "petrol station"
+)
+
+
+
+###################################
+### Dictionaries for datasets parsing
+
+csv_datasets = Dict(
+
+	"df_business"          => Dict(
+		:variables   => desc_df_businesses,
+		:NAs         => ["", "NA"],
+		:NAs_replace => nothing,
+		:rename      => [:PRCDDA => :DA_ID,
+						:BUSNAME => :NAME],
+		:new_col     => nothing,
+		:filter      => nothing,
+		:file_name   => "Businesses2018_CMA602"
+		),
+
+	"df_demostat"          => Dict(
+		:variables   => desc_df_demographics,
+		:NAs         => nothing,
+		:NAs_replace => [:ECYHMAMED => 0],
+		:rename      => [:PRCDDA => :DA_ID],
+		:new_col     => [(combine_cols!,(:HouseholdsWithChildren, [:ECYHFSCWC,:ECYHFSLP], +)),
+						 (combine_cols!, (:HouseholdsWithoutChildren, [:ECYBASHHD, :HouseholdsWithChildren], -))],
+		:filter      => nothing,
+		:file_name   => "DemoStats2018_DA_CMA602"
+		),
+						
+	"df_hwflows"           => Dict(
+	    :variables   => nothing,
+		:NAs         => nothing,
+		:NAs_replace => nothing,
+		:rename      => [:Sum_Value => :Flow_Volume],
+		:new_col     => nothing,
+		:filter      => [filter_df_hwflows!],
+		:file_name   => "home_work_flows_Winnipeg_Pij_2018"
+		),
+		
+	"df_shopping"          => Dict(
+	    :variables => desc_df_shopping,
+		:NAs         => nothing,
+		:NAs_replace => nothing,
+		:rename      => [:lat => :LATITUDE,
+			 		     :lon => :LONGITUDE,
+			 		     :centre_nm => :NAME,
+			 		     :centre_typ => :CENTRE_TYPE,
+			 		     :gla => :AREA,
+			 		     :totstores => :TOTSTORES,
+			 		     :parking => :PARKING,
+			 		     :anch_cnt => :ANCH_CNT],
+		:new_col      => [(category_df_shopping!, )],
+		:filter      => nothing,
+		:file_name   => "ShoppingCentres2018_CMA602"
+		),
+						 
+	"df_recreationComplex" => Dict(
+		:variables   => desc_df_recreation,
+		:NAs         => nothing,
+		:NAs_replace => nothing,
+		:rename      => [:_Complex_Name => :NAME,
+			 		     :Arena => :ARENA,
+		   		 	     :Indoor_Pool => :INDOOR_POOL,
+			 		     :Fitness_Leisure_Centre => :FITNESS,
+			 		     :Location_1 => :LOCATION],
+		:new_col     => [(get_lon_lat!,)],
+		:filter      => [filter_df_recreationComplex!],
+		:file_name   => "Recreation_Complex" 
+		),
+							
+	"df_schools"           => Dict(
+	    :variables   => desc_df_schools,
+		:NAs         => nothing,
+		:NAs_replace => nothing,
+		:rename      => [:SUBCAT => :CATEGORY,
+		                 :CentroidX => :LONGITUDE,
+					     :CentroidY => :LATITUDE],
+		:new_col     => nothing,
+		:filter      => [filter_df_schools!],
+		:file_name   => "SAMPLE_WinnipegCMA_Schools"
+		),
+                 
+)
+
+derivative_datasets = Dict("df_popstores" => Dict(:source => "df_business",
+                                                  :categories => desc_df_popstores,
+                                                  :filter => filter_df_popstores!))
+
+shapefile_datasets = Dict("df_DA_centroids" => "Winnipeg DAs PopWeighted Centroids")
+
+prepare_data = Dict(:CSV => csv_datasets, :SHP => shapefile_datasets, :DERIVATIVE => derivative_datasets)
