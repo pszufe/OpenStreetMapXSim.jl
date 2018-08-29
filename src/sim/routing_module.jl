@@ -11,23 +11,32 @@ function get_route(start_node::Int,
 					waypoint::Union{Int,Void},
 					fin_node::Int, 
 					activity::Union{String,Void},
-                    network::OpenStreetMap.Network,
+                    sim_data::OSMSim.SimData,
                     buffer::Array{OSMSim.Road,1},
                     routing_mode::String)
     if routing_mode == "fastest"
 		if isa(waypoint,Void)
-			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(network, start_node, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, start_node, fin_node)
 		else
-			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(network, start_node, waypoint, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, start_node, waypoint, fin_node)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)
         return route_nodes
-    else
+    elseif routing_mode == "shortest"
 		if isa(waypoint,Void)
-			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(network, start_node, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, start_node, fin_node)
 		else
-			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(network, start_node, waypoint, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, start_node, waypoint, fin_node)
+		end
+        road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
+        push!(buffer,road)
+        return route_nodes
+	else 
+		if isa(waypoint,Void)
+			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, sim_data)
+		else
+			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, waypoint, sim_data)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)
@@ -56,7 +65,7 @@ Selects routing mode for two points from the following options: fastest route, s
 **Arguments**
 * `DA_start` : DA_start unique id selected for an agent
 * `DA_fin` : DA_fin unique id selected for an agent
-* `network` : routing network based on OSM data
+* `sim_data` : simulation data struct
 * `DAs_to_intersection` : dictionary mapping each DA to nearest graph node 
 * `buffer` : array with already chosen routes 
 
@@ -70,14 +79,18 @@ Selects routing mode for two points from the following options: fastest route, s
 
 function select_route(DA_start::Int, DA_fin::Int, 
                     sim_data::OSMSim.SimData,
-                    buffer::Array{OSMSim.Road,1})
+                    buffer::Array{OSMSim.Road,1}; google::Bool = false)
     start_node = sim_data.DAs_to_intersection[DA_start]
     fin_node = sim_data.DAs_to_intersection[DA_fin]
     waypoint = activity = nothing
-    routing_mode = rand(["shortest", "fastest"])
+    if google
+		routing_mode = rand(["shortest", "fastest", "google"])
+	else
+		routing_mode = rand(["shortest", "fastest"])
+	end
 	indice = findfirst(road -> (road.start_node == start_node) &&  (road.fin_node == fin_node) && (road.waypoint == waypoint)  && (road.mode == routing_mode), buffer)
     if indice == 0
-		return OSMSim.get_route(start_node, waypoint, fin_node, activity, sim_data.network, buffer, routing_mode)
+		return OSMSim.get_route(start_node, waypoint, fin_node, activity, sim_data, buffer, routing_mode)
     else
 		buffer[indice].count += 1
 		return buffer[indice].route
@@ -113,14 +126,18 @@ Selects routing mode for three points from the following options: fastest route,
 function select_route(DA_start::Int, DA_fin::Int, 
                     activity::String,
                     sim_data::OSMSim.SimData,
-                    buffer::Array{OSMSim.Road,1})
+                    buffer::Array{OSMSim.Road,1}; google::Bool = false)
     start_node = sim_data.DAs_to_intersection[DA_start]
     fin_node = sim_data.DAs_to_intersection[DA_fin]
-    routing_mode = rand(["shortest", "fastest"])
+	if google
+		routing_mode = rand(["shortest", "fastest", "google"])
+	else
+		routing_mode = rand(["shortest", "fastest"])
+	end
     indice = findfirst(road -> (road.start_node == start_node) &&  (road.fin_node == fin_node) && (road.waypoint == activity)  && (road.mode == routing_mode), buffer)
     if indice == 0
 		waypoint = OSMSim.get_waypoint(start_node,fin_node,activity,sim_data,false)
-		return OSMSim.get_route(start_node, waypoint, fin_node, activity, sim_data.network, buffer, routing_mode)
+		return OSMSim.get_route(start_node, waypoint, fin_node, activity, sim_data, buffer, routing_mode)
     else
 		buffer[indice].count += 1
 		return buffer[indice].route

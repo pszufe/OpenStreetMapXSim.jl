@@ -12,6 +12,7 @@ export demographic_profile
 export additional_activity
 export destination_location!
 export encode,decode
+export get_google_route
 export select_route
 export node_statistics, stats_aggregator!
 export run_simulation
