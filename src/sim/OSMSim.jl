@@ -2,9 +2,11 @@ module OSMSim
 
 using DataFrames
 using StatsBase
-using OpenStreetMap
 using HTTP
 using JSON
+using SparseArrays
+using Main.OpenStreetMap
+
 
 export get_sim_data
 export start_location

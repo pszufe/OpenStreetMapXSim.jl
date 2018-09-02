@@ -15,8 +15,6 @@ Creates socio-demographic profile of an agent based on demostats distributions p
 
 Function, in case of any adjustments, should be modified within its body altogether with DemoProfile struct
 """
-
-
 function demographic_profile(DA_home::Int, DA_demostat::Dict{Symbol,Int};
 							demografic_categories = OSMSim.demografic_categories)::OSMSim.AgentProfile
     # age and gender

@@ -30,7 +30,6 @@ and values as NodeStat struct.
 * `route` : route represented by nodes ids
 
 """
-
 function stats_aggregator!(nodes_stats::Dict{Int,OSMSim.NodeStat}, 
                         agent_profile::OSMSim.AgentProfile, 
                         route::Array{Int,1} )

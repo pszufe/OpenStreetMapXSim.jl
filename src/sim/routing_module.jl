@@ -8,14 +8,14 @@
 
 
 function get_route(start_node::Int,
-					waypoint::Union{Int,Void},
+					waypoint::Union{Int,Nothing},
 					fin_node::Int, 
-					activity::Union{String,Void},
+					activity::Union{String,Nothing},
                     sim_data::OSMSim.SimData,
                     buffer::Array{OSMSim.Road,1},
                     routing_mode::String)
     if routing_mode == "fastest"
-		if isa(waypoint,Void)
+		if isa(waypoint,Nothing)
 			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, start_node, fin_node)
 		else
 			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, start_node, waypoint, fin_node)
@@ -24,7 +24,7 @@ function get_route(start_node::Int,
         push!(buffer,road)
         return route_nodes
     elseif routing_mode == "shortest"
-		if isa(waypoint,Void)
+		if isa(waypoint,Nothing)
 			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, start_node, fin_node)
 		else
 			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, start_node, waypoint, fin_node)
@@ -33,7 +33,7 @@ function get_route(start_node::Int,
         push!(buffer,road)
         return route_nodes
 	else 
-		if isa(waypoint,Void)
+		if isa(waypoint,Nothing)
 			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, sim_data)
 		else
 			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, waypoint, sim_data)
@@ -76,7 +76,6 @@ Selects routing mode for two points from the following options: fastest route, s
 -add google maps route 
 
 """
-
 function select_route(DA_start::Int, DA_fin::Int, 
                     sim_data::OSMSim.SimData,
                     buffer::Array{OSMSim.Road,1}; google::Bool = false)
@@ -120,9 +119,7 @@ Selects routing mode for three points from the following options: fastest route,
 **To Do **
 -add google maps route 
 
-"""
-
-					
+"""					
 function select_route(DA_start::Int, DA_fin::Int, 
                     activity::String,
                     sim_data::OSMSim.SimData,

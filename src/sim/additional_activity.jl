@@ -26,7 +26,6 @@ and dictionary with suitable school category (child care facility/pre school/sch
 **To Do**
 -connect the probability of driving children to school with agent demographic profile
 """
-
 function get_school_probability(agent_profile::OSMSim.AgentProfile, 
                                 school_probability::Float64, 
                                 school_category::Dict{UnitRange{Int64},String})
@@ -63,7 +62,6 @@ Younger, males and richer people work out more often.
 **To Do**
 -finding a better way to generate overall probability of going to recreation complex
 """
-
 function get_recreation_probability(agent_profile::OSMSim.AgentProfile,
                                      recreation_probabilities::Dict{Symbol,Dict{Union{String,UnitRange{Int}},Float64}},
                                      before::Bool)

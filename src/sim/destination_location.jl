@@ -18,7 +18,6 @@ Selects destination DA_work for an agent by randomly choosing the company he wor
 - exact number of employess in businesses is estimated in each iteration based on "Number of employees" intervals
 - differences between maximum number of employees and actual number of employees are used as a probability weights for each DA_work
 """
-
 function destination_location!(agent_profile::OSMSim.AgentProfile,
                             business_data::Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1};
                             industry::Dict{String,Array{String,1}} = OSMSim.industry)
@@ -44,7 +43,6 @@ Selects destination DA_work for an agent randomly weighted by Pij Journey Matrix
 * `flow_dictionary ` :  Dictionary mapping Pij Journey Matrix columns to DAs
 * `flow_matrix ` :  Pij Journey Matrix with *FlowVolume* from *DA_home* to *DA_work*
 """
-
 function destination_location!(agent_profile::OSMSim.AgentProfile,
                                 flow_dictionary::Dict{Int,Int},
                                 flow_matrix::SparseMatrixCSC{Int,Int})
@@ -72,7 +70,6 @@ Selects destination DA_work for an agent choosing a proper industry and then by 
 - list of possible businesses is returned based on agent's work_industry
 - then probability of selecting one of possible businesses is weighted by flows from DA_home to DA corresponding with each business
 """
-
 function destination_location!(agent_profile::OSMSim.AgentProfile,
                             sim_data::OSMSim.SimData;
                             industry::Dict{String,Array{String,1}} = OSMSim.industry)

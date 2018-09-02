@@ -11,8 +11,8 @@ mutable struct SimData
 	demographic_data::Dict{Int,Dict{Symbol,Int}}
 	business_data::Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1}
 	DAs_flow_dictionary::Dict{Int,Int}
-    DAs_flow_matrix::SparseMatrixCSC{Int,Int}
-	googleapi_key::Union{Void,String} 
+    DAs_flow_matrix::SparseArrays.SparseMatrixCSC{Int,Int}
+	googleapi_key::Union{Nothing,String} 
 end
 
 mutable struct AgentProfile
@@ -34,7 +34,7 @@ end
 mutable struct Road
     start_node::Int
     fin_node::Int
-    waypoint::Union{String,Void}
+    waypoint::Union{String,Nothing}
     mode::String
     route::Array{Int,1}
     count::Int
