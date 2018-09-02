@@ -23,16 +23,16 @@ end
 function read_features_data(datapath::String,
                             filenames::Array{String,1},
                             colnames::Array{Symbol,1}) 
-    features_data = DataFrames.DataFrame()
+    features_data = DataFrames.DataFrame[]
     for filename in filenames
         frame = DataFrames.readtable(datapath*filename)
         if !all(in(col, DataFrames.names(frame)) for col in colnames)
             error("$(filename) has wrong column names! Data Frame should contain $(String.(colnames).*" "... )columns!")
         end
         frame = frame[colnames]
-        features_data = vcat(features_data,frame)
+        push!(features_data,frame)
     end
-    return features_data
+    return vcat(features_data...)
 end
 
 function features_to_nodes(frame::DataFrames.DataFrame,
@@ -146,12 +146,21 @@ end
 function get_sim_data(datapath::String;
                     filenames::Dict{Symbol,Union{String,Array{String,1}}} = OSMSim.file_names,
                     colnames::Dict{Symbol,Array{Symbol,1}} = OSMSim.colnames, 
-                    road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))::OSMSim.SimData
+                    road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)),
+					google::Bool = false)::OSMSim.SimData
     files = collect(values(filenames))
     files = vcat(files...)
-    if !all(in(file, readdir(datapath)) for file in files)
-        error("file or files not in specified directory!")
-    end
+	files_in_dir = Set(readdir(datapath))
+	found_error = false
+	for filename in files
+		check = filename != filenames[:googleapi_key] || (filename == filenames[:googleapi_key] && google)
+		if !in(filename, files_in_dir) && check
+			println("The file $filename is missing in the directory $datapath")
+			found_error = true
+		end	
+	end
+	found_error && error("Some file(s) not found in $datapath")
+	
     mapfile = filenames[:osm]
     bounds,nodes,roadways,intersections,network = OSMSim.read_map_file(datapath, mapfile; road_levels = road_levels)
     features_data = filenames[:features]
@@ -164,6 +173,16 @@ function get_sim_data(datapath::String;
     business_data = OSMSim.get_business_data(datapath, business_stats, colnames[:business_stats])
 	flow_stats = filenames[:flows]
 	flow_dictionary, flow_matrix = OSMSim.get_flow_data(datapath,flow_stats, colnames[:flows])
+	googleapi_key = nothing
+	if google
+		if !haskey(filenames, :googleapi_key)
+			error("Google API key not defined! Declare one or run simulation based on OSM Data only!")
+		end
+		apikey = filenames[:googleapi_key]
+		googleapi_key = open(datapath*apikey) do file
+			read(file, String)
+		end
+	end
     return OSMSim.SimData(bounds, nodes,
                     roadways, intersections,
                     network,features, feature_classes, 
@@ -172,5 +191,6 @@ function get_sim_data(datapath::String;
 					demographic_data,
 					business_data,
 					flow_dictionary, 
-					flow_matrix) 
+					flow_matrix,
+					googleapi_key) 
 end

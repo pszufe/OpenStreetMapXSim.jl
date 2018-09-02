@@ -1,110 +1,112 @@
 
-###################################
-# Google Maps routing with waypoints
 
-apikey = open("googleapi.key") do file
-    read(file, String)
+function node_to_string(node_id::Int,sim_data::OSMSim.SimData)
+    coords = OpenStreetMap.LLA(sim_data.nodes[node_id],sim_data.bounds)
+    return string(coords.lat,",",coords.lon)
 end
 
-# change LLA coordinates (x::Float64, y::Float64) to ::String
-function changeCoordToString(point)::String
-    return string(point[1],",",point[2])
+function get_googleapi_url(origin::Int,destination::Int, waypoint::Int,
+                            sim_data::OSMSim.SimData;
+                            googleapi_parameters::Dict{Symbol,String} = OSMSim.googleAPI_parameters)
+    origin = OSMSim.node_to_string(origin, sim_data)
+    destination = OSMSim.node_to_string(destination, sim_data)
+    waypoint = OSMSim.node_to_string(waypoint, sim_data)   
+    return googleapi_parameters[:url]*"origin="*origin*"&destination="*destination*"&waypoints="*waypoint*
+    "&avoid="*googleapi_parameters[:avoid]*"&units="*googleapi_parameters[:units]*
+    "&mode="*googleapi_parameters[:mode]*"&key="*sim_data.googleapi_key
 end
 
-"""
-Google maps route
+function get_googleapi_url(origin::Int,destination::Int,
+                            sim_data::OSMSim.SimData;
+                            googleapi_parameters::Dict{Symbol,String} = OSMSim.googleAPI_parameters)
+    origin = OSMSim.node_to_string(origin, sim_data)
+    destination = OSMSim.node_to_string(destination, sim_data)
+    return googleapi_parameters[:url]*"origin="*origin*"&destination="*destination*
+    "&avoid="*googleapi_parameters[:avoid]*"&units="*googleapi_parameters[:units]*
+    "&mode="*googleapi_parameters[:mode]*"&key="*sim_data.googleapi_key
+end
 
-Requests google maps API for directions between points and parses the response into OSM nodes
-    
-**Arguments**
-* `pointA` : start point - DA_home
-* `pointB` : end point - DA_work
-* `mapD` : OpenStreetMap.OSMData object representing entire map
-* `network` : OpenStreetMap.Network object representing road graph
-* `routingMatchMode` : the way google API nodes are mapped with OSM nodes - fastestRoute/shortestRoute
-* `arrival_dt` : arrival time in DateTime format (e.g. DateTime(2018,8,20,9,0) ) 
-* `additional_activity` : waypoints - maximum one before work point and maximum one after work point 
-   (google accepts up to 8 waipoints per request)
-"""
-function googlemapsroute(pointA, pointB, mapD, network, routingMatchMode, arrival_dt, additional_activity)::RouteData
+function parse_google_url(url::String)
+    status, routes = nothing, nothing
+    res_json = JSON.parse(String(HTTP.get(url).body))
+    status, routes = res_json["status"], res_json["routes"]
+    return status, routes
+end
 
-    # time in seconds since midnight, January 1, 1970 UTC; Winnipeg = UTC - 5h (6h in winter time)
-    arrival_time = round(Int, Dates.value(arrival_dt + Dates.Hour(5) - DateTime(1970,1,1,0,0,0))/1000)
-    
-    pointA_str = changeCoordToString(pointA)
-    pointB_str = changeCoordToString(pointB)
-    
-    waypoints = additional_activity
-    
-    if length(waypoints.before) == 0 && length(waypoints.after) == 0
-        url = "https://maps.googleapis.com/maps/api/directions/json?origin="*pointA_str*
-                  "&destination="*pointB_str*"&arrival_time="*string(arrival_time)*"&key="*apikey
-    
-    # before and after waypoints - route: pointA -> before -> pointB -> after -> pointA 
-    elseif length(waypoints.before) > 0 && length(waypoints.after) > 0
-        before_str = changeCoordToString(waypoints.point_before)
-        after_str  = changeCoordToString(waypoints.point_after)
-        waypoints  = before_str*"|"*pointB_str*"|"*after_str
-        url = "https://maps.googleapis.com/maps/api/directions/json?origin="*pointA_str*
-               "&destination="*pointA_str*"&waypoints="*waypoints*"&arrival_time="*
-               string(arrival_time)*"&key="*apikey
-        
-    # only before waypoint - route: pointA -> before -> pointB -> pointA 
-    elseif length(waypoints.before) > 0 && length(waypoints.after) == 0
-        before_str = changeCoordToString(waypoints.point_before)
-        waypoints  = before_str*"|"*pointB_str
-        url = "https://maps.googleapis.com/maps/api/directions/json?origin="*pointA_str*
-               "&destination="*pointA_str*"&waypoints="*waypoints*"&arrival_time="*
-               string(arrival_time)*"&key="*apikey
-         
-    # only after waypoint - route: pointA - pointB - after - pointA     
-    elseif length(waypoints.before) == 0 && length(waypoints.after) > 0
-        after_str = changeCoordToString(waypoints.point_after)
-        waypoints  = pointB_str*"|"*after_str
-        url = "https://maps.googleapis.com/maps/api/directions/json?origin="*pointA_str*
-               "&destination="*pointA_str*"&waypoints="*waypoints*"&arrival_time="*
-               string(arrival_time)*"&key="*apikey 
-    end 
-
-    res = HTTP.request("GET", url; verbose = 0); println(res.status)
-    res_json = JSON.parse(join(readlines(IOBuffer(res.body))," "))
-    
-    response  = res_json["routes"][1]["legs"]
-    route     = [0]
-    time      = 0 # in seconds 
-    distance  = 0 # in metres
-
-    osm_distance, osm_time = 0, 0 # calculated by osm routing
-
-    # iterate through points/waypoints
-    for k in 1:size(response, 1)
-        distance += response[k]["distance"]["value"]
-        time     += response[k]["duration"]["value"]
-
-        # iterate through nodes between 2 points/waypoints
-        for i in 1:size(response[k]["steps"], 1)
-            start_lat = response[k]["steps"][i]["start_location"]["lat"]
-            start_lon = response[k]["steps"][i]["start_location"]["lng"]
-            end_lat   = response[k]["steps"][i]["end_location"]["lat"]
-            end_lon   = response[k]["steps"][i]["end_location"]["lng"]    
-
-            start_osmnode = nearestNode(nodes, ENU(LLA(start_lat, start_lon), OpenStreetMap.center(mapD.bounds)), network)
-            end_osmnode   = nearestNode(nodes, ENU(LLA(end_lat, end_lon), OpenStreetMap.center(mapD.bounds)), network)
-
-            if start_osmnode != end_osmnode
-                r = routingMatchMode(network, start_osmnode, end_osmnode)
-                route[end] != r[1][1] ? append!(route, r[1]) : append!(route, r[1][2:end])
-                osm_distance += r[2]
-                osm_time += r[3] 
-            end
-
+function extract_google_route(routes::Dict)
+    res = Array{Tuple{Float64,Float64},1}[]
+    legs = routes["legs"]
+    for leg in legs
+        steps = leg["steps"]
+        for step in steps
+            push!(res,OSMSim.decode(step["polyline"]["points"]))
         end
     end
+    return vcat(res...)
+end
 
-    route = route[2:end]
-    
-    println("osm_dist: ", osm_distance, "\nosm_routeTime: ", osm_time)
-    println("google_dist: ", distance,     "\ngoogle_time: ", time)
-    
-    return RouteData(route, distance, time)
+function google_route_to_network(route::Array{Tuple{Float64,Float64},1},sim_data::OSMSim.SimData)
+    route = [OpenStreetMap.ENU(OpenStreetMap.LLA(coords[1], coords[2]),sim_data.bounds) for coords in route]
+    res = [OpenStreetMap.nearestNode(sim_data.nodes, route[1], sim_data.network)]
+    index = 2
+    for i = 2:length(route)
+        node = OpenStreetMap.nearestNode(sim_data.nodes, route[i], sim_data.network)
+        if node != res[index-1]
+            push!(res,node)
+            index += 1
+        end
+    end
+    return res
+end
+
+function get_google_route(origin::Int,destination::Int,waypoint::Int,
+                            sim_data::OSMSim.SimData;
+                            googleapi_parameters::Dict{Symbol,String} = OSMSim.googleAPI_parameters)
+    url = OSMSim.get_googleapi_url(origin, destination, waypoint,sim_data;googleapi_parameters = googleapi_parameters)
+    status, routes = OSMSim.parse_google_url(url)
+    if status == "OK"
+        route = OSMSim.extract_google_route(routes[1])
+        return OSMSim.google_route_to_network(route,sim_data), "google"
+    elseif status =="ZERO_RESULTS"
+        return Int[], "google"
+    elseif status == "OVER_QUERY_LIMIT"
+        sleep(0.5)
+        return OSMSim.get_google_route(origin,destination,waypoint,sim_data,googleapi_parameters = googleapi_parameters)
+    else
+        #get route based on OSM routing
+        warn("Google Distances API cannot get a proper results - route will be calculated with OSMSim Routing module")
+		if rand() < 0.5
+			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, origin, waypoint, destination)
+			return route_nodes, "shortest"
+		else
+			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, origin, waypoint, destination)
+			return route_nodes, "fastest"
+		end
+    end
+end
+
+function get_google_route(origin::Int,destination::Int,
+                            sim_data::OSMSim.SimData;
+                            googleapi_parameters::Dict{Symbol,String} = OSMSim.googleAPI_parameters)
+    url = OSMSim.get_googleapi_url(origin, destination,sim_data;googleapi_parameters = googleapi_parameters)
+    status, routes = OSMSim.parse_google_url(url)
+    if status == "OK"
+        route = OSMSim.extract_google_route(routes[1])
+        return OSMSim.google_route_to_network(route,sim_data), "google"
+    elseif status =="ZERO_RESULTS"
+        return Int[],"google"
+    elseif status == "OVER_QUERY_LIMIT"
+        sleep(0.5)
+        return OSMSim.get_google_route(origin,destination,sim_data,googleapi_parameters = googleapi_parameters)
+    else
+        #get route based on OSM routing
+        warn("Google Distances API cannot get a proper results - route will be calculated with OSMSim Routing module")
+		if rand() < 0.5
+			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, origin, destination)
+			return route_nodes, "shortest"
+		else
+			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, origin, destination)
+			return route_nodes, "fastest"
+		end
+    end
 end

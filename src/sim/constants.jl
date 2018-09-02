@@ -6,7 +6,8 @@
 :flows =>"df_hwflows.csv",
 :DAs => "df_DA_centroids.csv",
 :demo_stats => "df_demostat.csv",
-:business_stats => "df_business.csv"
+:business_stats => "df_business.csv",
+:googleapi_key => "googleapi.key"
 )
  
 
@@ -189,6 +190,12 @@ const industry = Dict(
         ["Agricultural & Natural Resources", "Unassigned"]
 )
 
+const googleAPI_parameters = Dict{Symbol,String}(
+:url => "https://maps.googleapis.com/maps/api/directions/json?", #url for google API, only json files output are accepted 
+:mode  => "driving", #transportation mode used in simulation
+:avoid => "ferries", #features to avoid (to mantain compatibility with OSM routes ferries should be avoided)
+:units => "metric", #unit system for displaing distances
+)
 
  
 """
