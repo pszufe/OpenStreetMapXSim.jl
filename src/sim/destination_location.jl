@@ -21,7 +21,7 @@ Selects destination DA_work for an agent by randomly choosing the company he wor
 function destination_location!(agent_profile::OSMSim.AgentProfile,
                             business_data::Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1};
                             industry::Dict{String,Array{String,1}} = OSMSim.industry)
-    indices  = findin([ds[:ICLS_DESC] for ds in business_data], Set(industry[agent_profile.work_industry]))
+    indices  = findall((in)(Set(industry[agent_profile.work_industry])),[ds[:ICLS_DESC] for ds in business_data])
     weights = StatsBase.fweights([maximum(business_data[i][:IEMP_DESC]) - business_data[i][:no_of_workers] for i in indices])
     index = StatsBase.sample(indices,weights)
     DA_work = business_data[index][:DA_ID]
@@ -48,7 +48,7 @@ function destination_location!(agent_profile::OSMSim.AgentProfile,
                                 flow_matrix::SparseMatrixCSC{Int,Int})
     row = flow_dictionary[agent_profile.DA_home]
     column = StatsBase.sample(StatsBase.fweights(flow_matrix[row,:]))
-    agent_profile.DA_work = collect(keys(flow_dictionary))[findfirst(collect(values(flow_dictionary)), column)]
+    agent_profile.DA_work = collect(keys(flow_dictionary))[something(findfirst(isequal(column), collect(values(flow_dictionary))),rand(1:length(flow_dictionary)))]
     return nothing
 end
 
@@ -74,7 +74,7 @@ function destination_location!(agent_profile::OSMSim.AgentProfile,
                             sim_data::OSMSim.SimData;
                             industry::Dict{String,Array{String,1}} = OSMSim.industry)
     row = sim_data.DAs_flow_dictionary[agent_profile.DA_home]
-    indices  = findin([ds[:ICLS_DESC] for ds in sim_data.business_data], Set(industry[agent_profile.work_industry]))
+    indices  = findall((in)(Set(industry[agent_profile.work_industry])), [ds[:ICLS_DESC] for ds in sim_data.business_data])
     columns = [sim_data.DAs_flow_dictionary[sim_data.business_data[index][:DA_ID]] for index in indices if haskey(sim_data.DAs_flow_dictionary,sim_data.business_data[index][:DA_ID])]
     weights = StatsBase.fweights([sim_data.DAs_flow_matrix[row,column] for column in columns])
     index = StatsBase.sample(indices,weights)

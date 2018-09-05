@@ -5,7 +5,7 @@
 
 
 function node_statistics(sim_data::OSMSim.SimData,profile::Type{OSMSim.AgentProfile} = OSMSim.AgentProfile)::Dict{Int,OSMSim.NodeStat}
-    fields = fieldnames(profile)
+    fields = collect(fieldnames(profile))
     types = [fieldtype(profile, t) for t in fields]
     agents_data = DataFrames.DataFrame(types,fields,0)
     nodes_stats = Dict{Int,OSMSim.NodeStat}()
@@ -33,7 +33,7 @@ and values as NodeStat struct.
 function stats_aggregator!(nodes_stats::Dict{Int,OSMSim.NodeStat}, 
                         agent_profile::OSMSim.AgentProfile, 
                         route::Array{Int,1} )
-    profile = [getfield(agent_profile,field) for field in fieldnames(agent_profile)]
+    profile = [getfield(agent_profile,field) for field in fieldnames(typeof(agent_profile))]
     for indice in route
         node = nodes_stats[indice]
         node.count += 1

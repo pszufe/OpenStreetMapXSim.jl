@@ -47,10 +47,10 @@ end
 
 function google_route_to_network(route::Array{Tuple{Float64,Float64},1},sim_data::OSMSim.SimData)
     route = [OpenStreetMap.ENU(OpenStreetMap.LLA(coords[1], coords[2]),sim_data.bounds) for coords in route]
-    res = [OpenStreetMap.nearestNode(sim_data.nodes, route[1], sim_data.network)]
+    res = [OpenStreetMap.nearest_node(sim_data.nodes, route[1], sim_data.network)]
     index = 2
     for i = 2:length(route)
-        node = OpenStreetMap.nearestNode(sim_data.nodes, route[i], sim_data.network)
+        node = OpenStreetMap.nearest_node(sim_data.nodes, route[i], sim_data.network)
         if node != res[index-1]
             push!(res,node)
             index += 1
@@ -76,10 +76,10 @@ function get_google_route(origin::Int,destination::Int,waypoint::Int,
         #get route based on OSM routing
         warn("Google Distances API cannot get a proper results - route will be calculated with OSMSim Routing module")
 		if rand() < 0.5
-			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, origin, waypoint, destination)
+			route_nodes, distance, route_time = OpenStreetMap.shortest_route(sim_data.network, origin, waypoint, destination)
 			return route_nodes, "shortest"
 		else
-			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, origin, waypoint, destination)
+			route_nodes, distance, route_time = OpenStreetMap.fastest_route(sim_data.network, origin, waypoint, destination)
 			return route_nodes, "fastest"
 		end
     end
@@ -102,10 +102,10 @@ function get_google_route(origin::Int,destination::Int,
         #get route based on OSM routing
         warn("Google Distances API cannot get a proper results - route will be calculated with OSMSim Routing module")
 		if rand() < 0.5
-			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, origin, destination)
+			route_nodes, distance, route_time = OpenStreetMap.shortest_route(sim_data.network, origin, destination)
 			return route_nodes, "shortest"
 		else
-			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, origin, destination)
+			route_nodes, distance, route_time = OpenStreetMap.fastest_route(sim_data.network, origin, destination)
 			return route_nodes, "fastest"
 		end
     end

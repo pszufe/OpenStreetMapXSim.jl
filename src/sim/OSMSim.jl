@@ -4,6 +4,7 @@ using DataFrames
 using StatsBase
 using HTTP
 using JSON
+using CSV
 using SparseArrays
 using Main.OpenStreetMap
 
@@ -18,7 +19,7 @@ export get_google_route
 export select_route
 export node_statistics, stats_aggregator!
 export run_simulation
-export reduce
+export reduce_results
 
 include("types.jl")
 include("constants.jl")

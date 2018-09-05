@@ -1,16 +1,16 @@
-function reduce(buffer::Array{OSMSim.Road,1}...)::Array{OSMSim.Road,1}
+function reduce_results(buffer::Array{OSMSim.Road,1}...)::Array{OSMSim.Road,1}
     reduced_buffer = OSMSim.Road[]
     buffer = vcat(buffer...)
-    buffer  = [(Tuple(getfield(buffer[i],field) for field in fieldnames(buffer[i])[1:end-1]), buffer[i].count) for i = 1:length(buffer)]
+    buffer  = [(Tuple(getfield(buffer[i],field) for field in fieldnames(typeof(buffer[i]))[1:end-1]), buffer[i].count) for i = 1:length(buffer)]
     unique_roads = Set(map(road -> road[1], buffer))
     for road in unique_roads
-        count = sum(buffer[i][2] for i in find(x->(x[1] == road), buffer))
+        count = sum(buffer[i][2] for i in findall(x->(x[1] == road), buffer))
         push!(reduced_buffer,OSMSim.Road(road...,count))
     end
     return reduced_buffer
 end
 
-function reduce(nodes::Dict{Int64,OSMSim.NodeStat}...)::Dict{Int64,OSMSim.NodeStat}
+function reduce_results(nodes::Dict{Int64,OSMSim.NodeStat}...)::Dict{Int64,OSMSim.NodeStat}
     reduced_nodes = Dict{Int64,OSMSim.NodeStat}()
     ids = keys(merge(nodes...))
     for id in ids

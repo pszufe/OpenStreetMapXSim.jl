@@ -14,7 +14,7 @@ function run_once!(sim_data::OSMSim.SimData,
     end
     #before work
     activity = OSMSim.additional_activity(agent,true)
-    if isa(activity,Void)
+    if isa(activity,Nothing)
         route = OSMSim.select_route(agent.DA_home, agent.DA_work,sim_data, buffer, google = google)
         OSMSim.stats_aggregator!(nodes_stats, agent, route)
     else
@@ -23,7 +23,7 @@ function run_once!(sim_data::OSMSim.SimData,
     end
     #after work
     activity = OSMSim.additional_activity(agent,false)
-    if isa(activity,Void)
+    if isa(activity,Nothing)
         route = OSMSim.select_route(agent.DA_work, agent.DA_home, sim_data, buffer,google = google)
         OSMSim.stats_aggregator!(nodes_stats, agent, route)
     else
