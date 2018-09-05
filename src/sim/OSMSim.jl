@@ -2,9 +2,12 @@ module OSMSim
 
 using DataFrames
 using StatsBase
-using OpenStreetMap
 using HTTP
 using JSON
+using CSV
+using SparseArrays
+using Main.OpenStreetMap
+using Serialization
 
 export get_sim_data
 export start_location
@@ -16,7 +19,7 @@ export get_google_route
 export select_route
 export node_statistics, stats_aggregator!
 export run_simulation
-export reduce
+export reduce_results
 
 include("types.jl")
 include("constants.jl")

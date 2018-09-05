@@ -24,7 +24,7 @@ function decode_one(polyline::Array{Char,1}, index::Int)
     byte = nothing
     res = 0
     shift = 0
-    while isa(byte, Void) || byte >= 0x20
+    while isa(byte, Nothing) || byte >= 0x20
         byte = Int(polyline[index]) - 63
         index += 1
         res |= (byte & 0x1f) << shift

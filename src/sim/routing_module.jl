@@ -8,32 +8,32 @@
 
 
 function get_route(start_node::Int,
-					waypoint::Union{Int,Void},
+					waypoint::Union{Int,Nothing},
 					fin_node::Int, 
-					activity::Union{String,Void},
+					activity::Union{String,Nothing},
                     sim_data::OSMSim.SimData,
                     buffer::Array{OSMSim.Road,1},
                     routing_mode::String)
     if routing_mode == "fastest"
-		if isa(waypoint,Void)
-			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, start_node, fin_node)
+		if isa(waypoint,Nothing)
+			route_nodes, distance, route_time = OpenStreetMap.fastest_route(sim_data.network, start_node, fin_node)
 		else
-			route_nodes, distance, route_time = OpenStreetMap.fastestRoute(sim_data.network, start_node, waypoint, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap.fastest_route(sim_data.network, start_node, waypoint, fin_node)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)
         return route_nodes
     elseif routing_mode == "shortest"
-		if isa(waypoint,Void)
-			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, start_node, fin_node)
+		if isa(waypoint,Nothing)
+			route_nodes, distance, route_time = OpenStreetMap.shortest_route(sim_data.network, start_node, fin_node)
 		else
-			route_nodes, distance, route_time = OpenStreetMap.shortestRoute(sim_data.network, start_node, waypoint, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap.shortest_route(sim_data.network, start_node, waypoint, fin_node)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)
         return route_nodes
 	else 
-		if isa(waypoint,Void)
+		if isa(waypoint,Nothing)
 			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, sim_data)
 		else
 			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, waypoint, sim_data)
@@ -49,11 +49,11 @@ function get_waypoint(start_node::Int,
 					activity::String,
 					sim_data::OSMSim.SimData,
 					exact::Bool)
-	waypoints = OpenStreetMap.fillterGraphFeatures(sim_data.features, sim_data.feature_to_intersections,sim_data.feature_classes,activity)
+	waypoints = OpenStreetMap.filter_graph_features(sim_data.features, sim_data.feature_to_intersections,sim_data.feature_classes,activity)
 	if exact
-		return waypoint = OpenStreetMap.findOptimalWaypointExact(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
+		return waypoint = OpenStreetMap.find_optimal_waypoint_exact(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
 	else
-		return waypoint = OpenStreetMap.findOptimalWaypointApprox(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
+		return waypoint = OpenStreetMap.find_optimal_waypoint_approx(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
 	end
 end
 
@@ -76,7 +76,6 @@ Selects routing mode for two points from the following options: fastest route, s
 -add google maps route 
 
 """
-
 function select_route(DA_start::Int, DA_fin::Int, 
                     sim_data::OSMSim.SimData,
                     buffer::Array{OSMSim.Road,1}; google::Bool = false)
@@ -89,7 +88,7 @@ function select_route(DA_start::Int, DA_fin::Int,
 		routing_mode = rand(["shortest", "fastest"])
 	end
 	indice = findfirst(road -> (road.start_node == start_node) &&  (road.fin_node == fin_node) && (road.waypoint == waypoint)  && (road.mode == routing_mode), buffer)
-    if indice == 0
+    if isa(indice,Nothing)
 		return OSMSim.get_route(start_node, waypoint, fin_node, activity, sim_data, buffer, routing_mode)
     else
 		buffer[indice].count += 1
@@ -120,9 +119,7 @@ Selects routing mode for three points from the following options: fastest route,
 **To Do **
 -add google maps route 
 
-"""
-
-					
+"""					
 function select_route(DA_start::Int, DA_fin::Int, 
                     activity::String,
                     sim_data::OSMSim.SimData,
@@ -135,7 +132,7 @@ function select_route(DA_start::Int, DA_fin::Int,
 		routing_mode = rand(["shortest", "fastest"])
 	end
     indice = findfirst(road -> (road.start_node == start_node) &&  (road.fin_node == fin_node) && (road.waypoint == activity)  && (road.mode == routing_mode), buffer)
-    if indice == 0
+    if isa(indice,Nothing)
 		waypoint = OSMSim.get_waypoint(start_node,fin_node,activity,sim_data,false)
 		return OSMSim.get_route(start_node, waypoint, fin_node, activity, sim_data, buffer, routing_mode)
     else

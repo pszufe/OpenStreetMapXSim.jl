@@ -2,20 +2,34 @@
 
 function read_map_file(datapath::String,filename::String; road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))
     #preprocessing map file
-    mapdata = OpenStreetMap.parseOSM(datapath*filename)
-    OpenStreetMap.crop!(mapdata,cropRelations = false)
-    #preparing data for simulation
-    bounds = mapdata.bounds
-    nodes = OpenStreetMap.ENU(mapdata.nodes,OpenStreetMap.center(bounds))
-    highways = OpenStreetMap.filterHighways(OpenStreetMap.extractHighways(mapdata.ways))
-    roadways = OpenStreetMap.filterRoadways(highways, levels= road_levels)
-    intersections = OpenStreetMap.findIntersections(roadways)
-    segments = OpenStreetMap.findSegments(nodes,roadways,intersections)
-    network = OpenStreetMap.createGraph(segments,intersections,OpenStreetMap.classifyRoadways(roadways))
-	#remove unuseful nodes
-	roadways_nodes = unique(vcat(collect(way.nodes for way in roadways)...))
-	nodes = Dict(key => nodes[key] for key in roadways_nodes)
-    return (bounds,nodes,roadways,intersections,network)
+	cachefile = joinpath(datapath,filename*".cache")
+	if isfile(cachefile)
+		f=open(cachefile,"r");
+		res=Serialization.deserialize(f);
+		close(f);
+		@info "Read map data from cache $cachefile"
+	else 
+		mapdata = OpenStreetMap.parseOSM(joinpath(datapath,filename))
+		OpenStreetMap.crop!(mapdata,crop_relations = false)
+		#preparing data for simulation
+		bounds = mapdata.bounds
+		nodes = OpenStreetMap.ENU(mapdata.nodes,OpenStreetMap.center(bounds))
+		highways = OpenStreetMap.filter_highways(OpenStreetMap.extract_highways(mapdata.ways))
+		roadways = OpenStreetMap.filter_roadways(highways, levels= road_levels)
+		intersections = OpenStreetMap.find_intersections(roadways)
+		segments = OpenStreetMap.find_segments(nodes,roadways,intersections)
+		network = OpenStreetMap.create_graph(segments,intersections,OpenStreetMap.classify_roadways(roadways))
+		#remove unuseful nodes
+		roadways_nodes = unique(vcat(collect(way.nodes for way in roadways)...))
+		nodes = Dict(key => nodes[key] for key in roadways_nodes)
+		res = (bounds,nodes,roadways,intersections,network)
+		f=open(cachefile,"w");
+		Serialization.serialize(f,res);
+		@info "Saved map data to cache $cachefile"
+		close(f);
+	end
+	
+    return res
 end
 
 #get features 
@@ -25,7 +39,7 @@ function read_features_data(datapath::String,
                             colnames::Array{Symbol,1}) 
     features_data = DataFrames.DataFrame[]
     for filename in filenames
-        frame = DataFrames.readtable(datapath*filename)
+        frame = CSV.read(datapath*filename)
         if !all(in(col, DataFrames.names(frame)) for col in colnames)
             error("$(filename) has wrong column names! Data Frame should contain $(String.(colnames).*" "... )columns!")
         end
@@ -43,10 +57,10 @@ function features_to_nodes(frame::DataFrames.DataFrame,
     sizehint!(features,DataFrames.nrow(frame))
     for i = 1:DataFrames.nrow(frame)
         loc = OpenStreetMap.ENU(OpenStreetMap.LLA(frame[:LATITUDE][i], frame[:LONGITUDE][i]), OpenStreetMap.center(bounds))
-        if !OpenStreetMap.inBounds(loc,OpenStreetMap.ENU(bounds, OpenStreetMap.center(bounds)))
-            loc = OpenStreetMap.boundaryPoint(loc, OpenStreetMap.ENU(center(bounds), center(bounds)), OpenStreetMap.ENU(bounds, center(bounds)))
+        if !OpenStreetMap.inbounds(loc,OpenStreetMap.ENU(bounds, OpenStreetMap.center(bounds)))
+            loc = OpenStreetMap.boundary_point(loc, OpenStreetMap.ENU(center(bounds), center(bounds)), OpenStreetMap.ENU(bounds, center(bounds)))
         end
-        node = OpenStreetMap.addNewNode!(nodes,loc)
+        node = OpenStreetMap.add_new_node!(nodes,loc)
         features[node] = (frame[:CATEGORY][i], frame[:NAME][i])
     end
     return features
@@ -60,7 +74,7 @@ function get_features_data(datapath::String, filenames::Array{String,1},
     features_dataframe = OSMSim.read_features_data(datapath, filenames,colnames)
     features = OSMSim.features_to_nodes(features_dataframe,nodes,bounds)
     feature_classes = Dict{String,Int}(zip(unique(features_dataframe[:CATEGORY]) , Set(1:length(unique(features_dataframe[:CATEGORY])))))
-    feature_to_intersections = OpenStreetMap.featuresToGraph(nodes,features, network)
+    feature_to_intersections = OpenStreetMap.features_to_graph(nodes,features, network)
     return features, feature_classes, feature_to_intersections
 end
 
@@ -71,7 +85,7 @@ function DAs_to_nodes(datapath::String, filename::String,
                     nodes::Dict{Int,OpenStreetMap.ENU},
                     network::OpenStreetMap.Network, 
                     bounds::OpenStreetMap.Bounds{OpenStreetMap.LLA})
-    DAframe = DataFrames.readtable(datapath*filename)
+    DAframe = CSV.read(datapath*filename)
     if !all(in(col, DataFrames.names(DAframe)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -79,7 +93,7 @@ function DAs_to_nodes(datapath::String, filename::String,
     sizehint!(DAs_to_nodes,DataFrames.nrow(DAframe))
     for i = 1:DataFrames.nrow(DAframe)
         coords = OpenStreetMap.ENU(OpenStreetMap.LLA(DAframe[:LATITUDE][i], DAframe[:LONGITUDE][i]), OpenStreetMap.center(bounds))
-        DAs_to_nodes[DAframe[:DA_ID][i]] = OpenStreetMap.nearestNode(nodes,coords,network)
+        DAs_to_nodes[DAframe[:DA_ID][i]] = OpenStreetMap.nearest_node(nodes,coords,network)
     end
     return DAs_to_nodes
 end
@@ -96,7 +110,7 @@ function dataframe_to_dict(dataframe::DataFrames.DataFrame, id_col::Symbol)
 end
 
 function get_demographic_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,Int}}
-    demostats = DataFrames.readtable(datapath*filename)
+    demostats = CSV.read(datapath*filename)
     if !all(in(col, DataFrames.names(demostats)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -104,18 +118,20 @@ function get_demographic_data(datapath::String, filename::String, colnames::Arra
     return OSMSim.dataframe_to_dict(demostats, :DA_ID)
 end
  
-function string_to_range(string::String)
+extract_numbers(string::AbstractString) = join(s for s in collect(string) if isnumeric(s))
+
+function string_to_range(string::AbstractString)
     if uppercase(string) == "N/A" || string == ""
         return (0:0)
     else
-        punct =[s for s in  collect(string) if ispunct(s)]
-        numbers = split(replace.(string,[punct],"")[1])
+        elements = split(string)
+		numbers = [OSMSim.extract_numbers(element) for element in elements if !isempty(OSMSim.extract_numbers(element))]
         return (parse(Int,numbers[1]): parse(Int,numbers[2]))
     end
 end
  
 function get_business_data(datapath::String, filename::String, colnames::Array{Symbol,1})
-    buss_stats = DataFrames.readtable(datapath*filename)
+    buss_stats = CSV.read(datapath*filename)
     if !all(in(col, DataFrames.names(buss_stats)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -132,7 +148,7 @@ function get_business_data(datapath::String, filename::String, colnames::Array{S
 end
 
 function get_flow_data(datapath::String, filename::String, colnames::Array{Symbol,1})
-    flows = DataFrames.readtable(datapath*filename)
+    flows = CSV.read(datapath*filename)
     if !all(in(col, DataFrames.names(flows)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -183,6 +199,7 @@ function get_sim_data(datapath::String;
 			read(file, String)
 		end
 	end
+	@info "All data have been read with total of $(length(nodes)) map nodes"
     return OSMSim.SimData(bounds, nodes,
                     roadways, intersections,
                     network,features, feature_classes, 
@@ -193,4 +210,5 @@ function get_sim_data(datapath::String;
 					flow_dictionary, 
 					flow_matrix,
 					googleapi_key) 
+
 end
