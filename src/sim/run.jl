@@ -13,21 +13,21 @@ function run_once!(sim_data::OSMSim.SimData,
 		OSMSim.destination_location!(agent,sim_data)
     end
     #before work
-    activity = OSMSim.additional_activity(agent,true)
+    activity = OSMSim.additional_activity(agent,true)	
     if isa(activity,Nothing)
-        route = OSMSim.select_route(agent.DA_home, agent.DA_work,sim_data, buffer, google = google)
+        route = OSMSim.select_route(agent.DA_home[1], agent.DA_work[1],sim_data, buffer, google = google)
         OSMSim.stats_aggregator!(nodes_stats, agent, route)
     else
-        route = OSMSim.select_route(agent.DA_home, agent.DA_work, activity,sim_data, buffer,google = google)
+        route = OSMSim.select_route(agent.DA_home[1], agent.DA_work[1], activity,sim_data, buffer,google = google)
         OSMSim.stats_aggregator!(nodes_stats, agent, route)
     end
     #after work
     activity = OSMSim.additional_activity(agent,false)
     if isa(activity,Nothing)
-        route = OSMSim.select_route(agent.DA_work, agent.DA_home, sim_data, buffer,google = google)
+        route = OSMSim.select_route(agent.DA_work[1], agent.DA_home[1], sim_data, buffer,google = google)
         OSMSim.stats_aggregator!(nodes_stats, agent, route)
     else
-        route = OSMSim.select_route(agent.DA_work, agent.DA_home, activity, sim_data, buffer,google = google)
+        route = OSMSim.select_route(agent.DA_work[1], agent.DA_home[1], activity, sim_data, buffer,google = google)
         OSMSim.stats_aggregator!(nodes_stats, agent, route)
     end
     return nothing
@@ -43,6 +43,8 @@ function run_simulation(sim_data::OSMSim.SimData,
     buffer = Array{OSMSim.Road,1}()
     for i = 1:N
         OSMSim.run_once!(sim_data,buffer,nodes_stats,destination_selector, google = google)
+		i == 1 && @info "First simulation completed"
     end
+	@info "All $N simulations completed"
     return nodes_stats,buffer
 end

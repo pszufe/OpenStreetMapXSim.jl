@@ -7,7 +7,7 @@ using JSON
 using CSV
 using SparseArrays
 using Main.OpenStreetMap
-
+using Serialization
 
 export get_sim_data
 export start_location

@@ -16,7 +16,7 @@ Creates socio-demographic profile of an agent based on demostats distributions p
 Function, in case of any adjustments, should be modified within its body altogether with DemoProfile struct
 """
 function demographic_profile(DA_home::Int, DA_demostat::Dict{Symbol,Int};
-							demografic_categories = OSMSim.demografic_categories)::OSMSim.AgentProfile
+							demografic_categories = OSMSim.demografic_categories)::DataFrames.DataFrame
     # age and gender
     categories = demografic_categories[:age_gender]
     weights = StatsBase.fweights(get.(Ref(DA_demostat), collect(keys(categories)), 0))
@@ -47,7 +47,7 @@ function demographic_profile(DA_home::Int, DA_demostat::Dict{Symbol,Int};
     #children_age
     categories = demografic_categories[:children_age]
     weights = StatsBase.fweights(get.(Ref(DA_demostat), collect(keys(categories)), 0))
-    children_age = no_of_children > 0 && [rand(StatsBase.sample(collect(values(categories)), weights)) for i = 1: no_of_children]
+    children_age = no_of_children > 0 ? [rand(StatsBase.sample(collect(values(categories)), weights)) for i = 1: no_of_children] : Int64[]
     #immigrant
     categories = demografic_categories[:immigrant]
     weights = StatsBase.fweights(get.(Ref(DA_demostat), collect(keys(categories)), 0))
@@ -63,10 +63,10 @@ function demographic_profile(DA_home::Int, DA_demostat::Dict{Symbol,Int};
         weights = StatsBase.fweights(get.(Ref(DA_demostat), collect(keys(categories)), 0))
         immigrant_region = StatsBase.sample(collect(values(categories)), weights)
     end
-    return OSMSim.AgentProfile(DA_home, 0, 
-                        gender,age, marital_status,
-                        work_industry, household_income, 
-                        household_size,no_of_children,
-                        children_age, immigrant, 
-                        immigrant_since, immigrant_region)
+    return DataFrames.DataFrame(DA_home=DA_home, DA_work=0, 
+                        gender=gender,age=age, marital_status=marital_status,
+                        work_industry=work_industry, household_income=household_income, 
+                        household_size=household_size,no_of_children=no_of_children,
+                        children_age=[children_age], imigrant=immigrant, 
+                        imigrant_since=immigrant_since, imigrant_region=immigrant_region)
 end

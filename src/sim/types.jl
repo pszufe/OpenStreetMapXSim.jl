@@ -15,7 +15,8 @@ mutable struct SimData
 	googleapi_key::Union{Nothing,String} 
 end
 
-mutable struct AgentProfile
+
+mutable struct AgentProfileOff
     DA_home::Int         
     DA_work::Int         
     gender::String          
@@ -31,6 +32,7 @@ mutable struct AgentProfile
     imigrant_region::String #household data
 end
 
+
 mutable struct Road
     start_node::Int
     fin_node::Int
@@ -44,5 +46,5 @@ mutable struct NodeStat
     count::Int
     latitude::Float64
     longitude::Float64
-    agents_data::DataFrames.DataFrame
+    agents_data::Union{DataFrames.DataFrame, Nothing}
 end

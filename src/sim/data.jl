@@ -2,20 +2,34 @@
 
 function read_map_file(datapath::String,filename::String; road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))
     #preprocessing map file
-    mapdata = OpenStreetMap.parseOSM(datapath*filename)
-    OpenStreetMap.crop!(mapdata,crop_relations = false)
-    #preparing data for simulation
-    bounds = mapdata.bounds
-    nodes = OpenStreetMap.ENU(mapdata.nodes,OpenStreetMap.center(bounds))
-    highways = OpenStreetMap.filter_highways(OpenStreetMap.extract_highways(mapdata.ways))
-    roadways = OpenStreetMap.filter_roadways(highways, levels= road_levels)
-    intersections = OpenStreetMap.find_intersections(roadways)
-    segments = OpenStreetMap.find_segments(nodes,roadways,intersections)
-    network = OpenStreetMap.create_graph(segments,intersections,OpenStreetMap.classify_roadways(roadways))
-	#remove unuseful nodes
-	roadways_nodes = unique(vcat(collect(way.nodes for way in roadways)...))
-	nodes = Dict(key => nodes[key] for key in roadways_nodes)
-    return (bounds,nodes,roadways,intersections,network)
+	cachefile = joinpath(datapath,filename*".cache")
+	if isfile(cachefile)
+		f=open(cachefile,"r");
+		res=Serialization.deserialize(f);
+		close(f);
+		@info "Read map data from cache $cachefile"
+	else 
+		mapdata = OpenStreetMap.parseOSM(joinpath(datapath,filename))
+		OpenStreetMap.crop!(mapdata,crop_relations = false)
+		#preparing data for simulation
+		bounds = mapdata.bounds
+		nodes = OpenStreetMap.ENU(mapdata.nodes,OpenStreetMap.center(bounds))
+		highways = OpenStreetMap.filter_highways(OpenStreetMap.extract_highways(mapdata.ways))
+		roadways = OpenStreetMap.filter_roadways(highways, levels= road_levels)
+		intersections = OpenStreetMap.find_intersections(roadways)
+		segments = OpenStreetMap.find_segments(nodes,roadways,intersections)
+		network = OpenStreetMap.create_graph(segments,intersections,OpenStreetMap.classify_roadways(roadways))
+		#remove unuseful nodes
+		roadways_nodes = unique(vcat(collect(way.nodes for way in roadways)...))
+		nodes = Dict(key => nodes[key] for key in roadways_nodes)
+		res = (bounds,nodes,roadways,intersections,network)
+		f=open(cachefile,"w");
+		Serialization.serialize(f,res);
+		@info "Saved map data to cache $cachefile"
+		close(f);
+	end
+	
+    return res
 end
 
 #get features 
@@ -185,6 +199,7 @@ function get_sim_data(datapath::String;
 			read(file, String)
 		end
 	end
+	@info "All data have been read with total of $(length(nodes)) map nodes"
     return OSMSim.SimData(bounds, nodes,
                     roadways, intersections,
                     network,features, feature_classes, 
@@ -195,4 +210,5 @@ function get_sim_data(datapath::String;
 					flow_dictionary, 
 					flow_matrix,
 					googleapi_key) 
+
 end

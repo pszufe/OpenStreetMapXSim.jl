@@ -26,11 +26,11 @@ and dictionary with suitable school category (child care facility/pre school/sch
 **To Do**
 -connect the probability of driving children to school with agent demographic profile
 """
-function get_school_probability(agent_profile::OSMSim.AgentProfile, 
+function get_school_probability(agent_profile::DataFrames.DataFrame, 
                                 school_probability::Float64, 
                                 school_category::Dict{UnitRange{Int64},String})
-    if agent_profile.no_of_children != 0
-        occurences = Dict(key => sum(age in key for age in agent_profile.children_age) for key in keys(school_category))
+    if agent_profile.no_of_children[1] != 0
+        occurences = Dict(key => sum((age in key) for age in agent_profile.children_age[1]) for key in keys(school_category))
         if sum(values(occurences)) == 0
             return 0, nothing
         else
@@ -62,7 +62,7 @@ Younger, males and richer people work out more often.
 **To Do**
 -finding a better way to generate overall probability of going to recreation complex
 """
-function get_recreation_probability(agent_profile::OSMSim.AgentProfile,
+function get_recreation_probability(agent_profile::DataFrames.DataFrame,
                                      recreation_probabilities::Dict{Symbol,Dict{Union{String,UnitRange{Int}},Float64}},
                                      before::Bool)
     probability = 1
@@ -74,7 +74,7 @@ function get_recreation_probability(agent_profile::OSMSim.AgentProfile,
                  probability *= recreation_probabilities[key]["after"]
             end
         else
-            field_value = getfield(agent_profile,key)
+            field_value = agent_profile[key][1]
             if typeof(field_value) == String
                 probability *= recreation_probabilities[key][field_value]
             else
@@ -113,7 +113,7 @@ returns a category of additional activity choosen by agent.
  -when agents is driving children to school a proper school category is chosen based on agent's children age
  -when agents is shopping a proper store category is chosen based on shopping_probabilities dictionary
 """
-function additional_activity(agent_profile::OSMSim.AgentProfile, before::Bool;
+function additional_activity(agent_profile::DataFrames.DataFrame, before::Bool;
                             school_probability::Float64 = OSMSim.school_probability, 
                             school_category::Dict{UnitRange{Int64},String} = OSMSim.school_category,
                             recreation_probabilities::Dict{Symbol,Dict{Union{String,UnitRange{Int}},Float64}} = OSMSim.recreation_probabilities,

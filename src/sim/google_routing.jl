@@ -1,4 +1,12 @@
 
+const googleAPI_parameters = Dict{Symbol,String}(
+:url => "https://maps.googleapis.com/maps/api/directions/json?", #url for google API, only json files output are accepted 
+:mode  => "driving", #transportation mode used in simulation
+:avoid => "ferries", #features to avoid (to mantain compatibility with OSM routes ferries should be avoided)
+:units => "metric", #unit system for displaing distances
+)
+
+
 
 function node_to_string(node_id::Int,sim_data::OSMSim.SimData)
     coords = OpenStreetMap.LLA(sim_data.nodes[node_id],sim_data.bounds)
