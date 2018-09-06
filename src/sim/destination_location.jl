@@ -1,4 +1,3 @@
-
 ###################################
 # Destination location selectors
 ###################################
@@ -16,7 +15,7 @@ Selects destination DA_work for an agent by randomly choosing the company he wor
 **Assumptions based on agent demographic profile
 - agents work in the business in accordance with their work_industry
 - exact number of employess in businesses is estimated in each iteration based on "Number of employees" intervals
-- differences between maximum number of employees and actual number of employees are used as a probability weights for each DA_work
+- differences between maximum number of employees and actual number of employees are used as a probability weights for each workplace location
 """
 function destination_location!(agent_profile::DataFrames.DataFrame,
                             business_data::Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1};
@@ -30,8 +29,6 @@ function destination_location!(agent_profile::DataFrames.DataFrame,
     return nothing
 end
 
-###################################
-## Selection based on Journey Matrix 
 
 """
 Destination location selector based on JM (Jurney Matrix)
@@ -41,7 +38,7 @@ Selects destination DA_work for an agent randomly weighted by Pij Journey Matrix
 **Arguments**
 * `agent_profile` : agent demographic profile
 * `flow_dictionary ` :  Dictionary mapping Pij Journey Matrix columns to DAs
-* `flow_matrix ` :  Pij Journey Matrix with *FlowVolume* from *DA_home* to *DA_work*
+* `flow_matrix ` :  Pij Journey Matrix with *FlowVolume* from *DA_I* to *DA_J*
 """
 function destination_location!(agent_profile::DataFrames.DataFrame,
                                 flow_dictionary::Dict{Int,Int},
@@ -67,8 +64,8 @@ Selects destination DA_work for an agent choosing a proper industry and then by 
 
 **Assumptions based on agent demographic profile
 - agents work in the business in accordance with their work_industry
-- list of possible businesses is returned based on agent's work_industry
-- then probability of selecting one of possible businesses is weighted by flows from DA_home to DA corresponding with each business
+- list of possible businesses locations is returned based on agent's work_industry
+- then probability of selecting one of possible businesses is weighted by flows from DA_home to DA corresponding to each business
 """
 function destination_location!(agent_profile::DataFrames.DataFrame,
                             sim_data::OSMSim.SimData;

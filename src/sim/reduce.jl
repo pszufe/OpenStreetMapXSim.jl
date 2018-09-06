@@ -1,3 +1,16 @@
+###############################
+### Result reduction functions
+###############################
+
+"""
+Reduce buffers
+
+Join buffers returned by multiple runs of simulation
+    
+**Arguments**
+* `buffer` : list of OSMSim.Road objects containing informations about routes selected during the simulation run.
+
+"""
 function reduce_results(buffer::Array{OSMSim.Road,1}...)::Array{OSMSim.Road,1}
     reduced_buffer = OSMSim.Road[]
     buffer = vcat(buffer...)
@@ -10,6 +23,15 @@ function reduce_results(buffer::Array{OSMSim.Road,1}...)::Array{OSMSim.Road,1}
     return reduced_buffer
 end
 
+"""
+Reduce nodes statistics
+
+Join nodes statistics returned by multiple runs of simulation
+    
+**Arguments**
+* `nodes` : dictionary of OSMSim.NodeStat objects containing informations about each intersection in simulation.
+
+"""
 function reduce_results(nodes::Dict{Int64,OSMSim.NodeStat}...)::Dict{Int64,OSMSim.NodeStat}
     reduced_nodes = Dict{Int64,OSMSim.NodeStat}()
     ids = keys(merge(nodes...))

@@ -1,9 +1,15 @@
-
 ###################################
-# Statistics aggregator
+# Sim statistics aggregator
 ###################################
 
+"""
+node statistics
+Creates a dictionary with keys as unique intersections ids and values as NodeStat struct containing coordinates of each intersection, number of agents driving by each intersection and their demographic profiles stored in data frame.
+    
+**Arguments**
+* `sim_data` : data used in sumulation 
 
+"""
 function node_statistics(sim_data::OSMSim.SimData)::Dict{Int,OSMSim.NodeStat}
     nodes_stats = Dict{Int,OSMSim.NodeStat}()
     for (key,value) in sim_data.intersections
@@ -18,8 +24,7 @@ end
 """
 Statistics aggregator
 
-Aggregates data for each intersection and returns dictionary with keys as unique nodes_id 
-and values as NodeStat struct.
+Aggregates data for each route intersection 
     
 **Arguments**
 * `nodes_stats` : dictionary with keys as unique nodes_id and values as NodeStat struct

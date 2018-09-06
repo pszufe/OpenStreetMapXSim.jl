@@ -1,3 +1,15 @@
+#############################################
+### Polyline Algorithm Format encoder/decoder
+#############################################
+
+
+"""
+Encode single coordinate (multiplied by 1e5 and rounded)
+
+**Arguments**
+* `val` : single coordinate (multiplied by 1e5 and rounded)
+
+"""
 function encode_one(val::Int)
     val <<= 1
     val = val < 0 ? ~val : val
@@ -9,6 +21,13 @@ function encode_one(val::Int)
     res *= Char(val + 63)
 end
 
+"""
+Encode coordinates 
+
+**Arguments**
+* `coords` : coordinates in LLA system stored as a tuple
+
+"""
 function encode(coords::Tuple{Float64,Float64}...)
     prev_lat, prev_lon = 0,0
     res = ""
@@ -20,6 +39,14 @@ function encode(coords::Tuple{Float64,Float64}...)
     return res
 end
 
+"""
+Decode single coordinate
+
+**Arguments**
+* `polyline` : coordinates in Polyline Algorithm Format stored as an array of characters
+* `index` : position of each single coordinate in polyline array
+
+"""
 function decode_one(polyline::Array{Char,1}, index::Int)
     byte = nothing
     res = 0
@@ -34,6 +61,13 @@ function decode_one(polyline::Array{Char,1}, index::Int)
     return res, index
 end
 
+"""
+Decode coordinates 
+
+**Arguments**
+* `polyline` : string containing coordinates in Polyline Algorithm Format
+
+"""
 function decode(polyline::String)
     polyline = collect(polyline)
     coords = Tuple{Float64,Float64}[]

@@ -1,18 +1,13 @@
-
 ###################################
 # Additional activity selectors
 ###################################
-
-
-###################################
-# schools 
 
 
 """
 Additional activity selector - schools
 
 Checks if an agent has small children and drives them to school and if so, it returns the probability of driving children to school 
-and dictionary with suitable school category (child care facility/pre school/school) for children of agent .
+and dictionary  mapping suitable school categories and number of agent's children going to each category.
 
 **Arguments**
 * `agent_profile` : agent demographic profile::DemoProfile with city_region, children_number_of and children_age
@@ -23,8 +18,6 @@ and dictionary with suitable school category (child care facility/pre school/sch
 **Assumptions**
 - kids in the same age go to the same school
 - kids aged 0-3 go to Child Care Facility, kids aged 4-5 go to Pre School, kids aged 6-14 go to School
-**To Do**
--connect the probability of driving children to school with agent demographic profile
 """
 function get_school_probability(agent_profile::DataFrames.DataFrame, 
                                 school_probability::Float64, 
@@ -41,8 +34,6 @@ function get_school_probability(agent_profile::DataFrames.DataFrame,
     end
 end
 
-###################################
-# recreation complexes 
 
 """
 Additional activity selector - recreation complexes
@@ -85,10 +76,6 @@ function get_recreation_probability(agent_profile::DataFrames.DataFrame,
     end
     return probability
 end
-
-
-###################################
-# additional activity selector
 
 """
 Additional activity selector
