@@ -8,12 +8,11 @@ Demographic profile generator
 Creates socio-demographic profile of an agent based on demostats distributions per DA
     
 **Arguments**
-* `DA_home` : DA_home unique id selected for an agent
+* `DA_home` : unique id of home location selected for an agent
 * `demografic_categories` : dictionary with demografic categories used in genereting agent's profile
 * `DA_demostat` : dictionary  with population statistics for specific DA
 *
 
-Function, in case of any adjustments, should be modified within its body altogether with DemoProfile struct
 """
 function demographic_profile(DA_home::Int, DA_demostat::Dict{Symbol,Int};
 							demografic_categories = OSMSim.demografic_categories)::DataFrames.DataFrame

@@ -39,7 +39,7 @@ function read_features_data(datapath::String,
                             colnames::Array{Symbol,1}) 
     features_data = DataFrames.DataFrame[]
     for filename in filenames
-        frame = CSV.read(datapath*filename)
+        frame = CSV.read(joinpath(datapath,filename))
         if !all(in(col, DataFrames.names(frame)) for col in colnames)
             error("$(filename) has wrong column names! Data Frame should contain $(String.(colnames).*" "... )columns!")
         end
@@ -85,7 +85,7 @@ function DAs_to_nodes(datapath::String, filename::String,
                     nodes::Dict{Int,OpenStreetMap.ENU},
                     network::OpenStreetMap.Network, 
                     bounds::OpenStreetMap.Bounds{OpenStreetMap.LLA})
-    DAframe = CSV.read(datapath*filename)
+    DAframe = CSV.read(joinpath(datapath,filename))
     if !all(in(col, DataFrames.names(DAframe)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -110,7 +110,7 @@ function dataframe_to_dict(dataframe::DataFrames.DataFrame, id_col::Symbol)
 end
 
 function get_demographic_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,Int}}
-    demostats = CSV.read(datapath*filename)
+    demostats = CSV.read(joinpath(datapath,filename))
     if !all(in(col, DataFrames.names(demostats)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -131,7 +131,7 @@ function string_to_range(string::AbstractString)
 end
  
 function get_business_data(datapath::String, filename::String, colnames::Array{Symbol,1})
-    buss_stats = CSV.read(datapath*filename)
+    buss_stats = CSV.read(joinpath(datapath,filename))
     if !all(in(col, DataFrames.names(buss_stats)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -148,7 +148,7 @@ function get_business_data(datapath::String, filename::String, colnames::Array{S
 end
 
 function get_flow_data(datapath::String, filename::String, colnames::Array{Symbol,1})
-    flows = CSV.read(datapath*filename)
+    flows = CSV.read(joinpath(datapath,filename))
     if !all(in(col, DataFrames.names(flows)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end

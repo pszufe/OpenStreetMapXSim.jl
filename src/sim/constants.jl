@@ -1,4 +1,4 @@
- const file_names = Dict{Symbol,Union{String,Array{String,1}}}(:osm => "Winnipeg CMA.osm",
+const file_names = Dict{Symbol,Union{String,Array{String,1}}}(:osm => "Winnipeg CMA.osm",
 :features => [ "df_popstores.csv",
   "df_schools.csv",
   "df_recreationComplex.csv",
@@ -100,7 +100,7 @@ const demografic_categories = Dict(
     :ECYCHA1014 => (10:14), #"Total Children At Home by Age - 10 To 14",
     :ECYCHA1519 => (15:19), #"Total Children At Home by Age - 15 To 19",
     :ECYCHA2024 => (20:24), #"Total Children At Home by Age - 20 To 24",
-    :ECYCHA25P  => (25:40), #"Total Children At Home by Age - 25 Or More",
+    :ECYCHA25P  => (25:50), #"Total Children At Home by Age - 25 Or More",
     ),
     :immigrant => Dict(
     :ECYPIMNI   => false, #"Household Population - Non-Immigrants",
@@ -149,12 +149,6 @@ const demografic_categories = Dict(
  
  
 """
-DA_work selected by randomely choosing the company (business) where agent work based on:
-* agent work_industry profile
-* company size weights represented by randomely estimated number of employees
-
-
-
 Industry dictionary for agent_profile:
 * `key` : industry from agent_profile
 * `value` : industry from business_data
@@ -193,7 +187,7 @@ const industry = Dict(
  
 """
 Dictionary mapping children age with school category
-* `key` : children age intervals from df_demostat and agent profile
+* `key` : children age intervals 
 * `value` : correspoding school
 """
 const school_category = Dict(

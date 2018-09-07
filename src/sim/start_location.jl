@@ -1,4 +1,3 @@
-
 ###################################
 # Start location selector
 ###################################
@@ -6,7 +5,7 @@
 """
 Start location selector
 
-Selects starting DA_home for an agent randomly weighted by weight_var
+Selects starting DA centroid for an agent randomly weighted by weight_var
     
 **Arguments**
 * `demostat` : dataframe with weight_var value for each DA

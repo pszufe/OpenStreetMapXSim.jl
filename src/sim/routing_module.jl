@@ -1,12 +1,22 @@
-
 ###################################
 # Routing module
 ###################################
 
-###################################
-# Route module selector
+"""
+Route selector
 
+Finds a route by using a choosen mode (fastest, shortest or based on google distances API) and returns intersections indeces for the route
+    
+**Arguments**
+* `start_node` :  unique id selected for an agent
+* `waypoint` :  unique id of a waypoint or nothing when agent is driving directly from *start_node* to *fin_node*
+* `fin_node` :  unique id selected for an agent
+* `activity` : string with category of  waypoint or nothing when agent is driving directly from *start_node* to *fin_node*
+* `sim_data` : simulation data struct
+* `buffer` : array with already chosen routes 
+* `routing_mode` : string determining a way how the route will be selected (fastest, shortest or based on Google API)
 
+"""
 function get_route(start_node::Int,
 					waypoint::Union{Int,Nothing},
 					fin_node::Int, 
@@ -44,6 +54,19 @@ function get_route(start_node::Int,
     end
 end
 
+"""
+Waypoint selector
+
+Selects waypoint by minimizing the length of the route from DA_start by waypoint to DA_fin
+    
+**Arguments**
+* `start_node` :  unique id selected for an agent
+* `fin_node` :  unique id selected for an agent
+* `activity` : string with category of sought waypoint
+* `sim_data` : simulation data struct
+* `exact` : boolean value indicing how the waypoint will be chosen (with approximate or exact algorithm) 
+
+"""
 function get_waypoint(start_node::Int,
 					fin_node::Int,
 					activity::String,
@@ -60,7 +83,7 @@ end
 """
 Route module selector
 
-Selects routing mode for two points from the following options: fastest route, shortest route  and returns a route
+Selects routing mode for two points from the following options: fastest route, shortest route or google route and returns a node indices of the choosen route 
     
 **Arguments**
 * `DA_start` : DA_start unique id selected for an agent
@@ -71,9 +94,6 @@ Selects routing mode for two points from the following options: fastest route, s
 
 **Assumptions**
 - the probability of selecting each routing mode is equal
-
-**To Do **
--add google maps route 
 
 """
 function select_route(DA_start::Int, DA_fin::Int, 
@@ -97,13 +117,13 @@ function select_route(DA_start::Int, DA_fin::Int,
 end
 
 """
-Route module selector for three
+Route module selector for three points
 
-Selects routing mode for three points from the following options: fastest route, shortest route  and returns a route
+Selects routing mode for three points from the following options: fastest route, shortest route or google route and returns a node indices of the choosen route 
     
 **Arguments**
-* `DA_start` : DA_start unique id selected for an agent
-* `DA_fin` : DA_fin unique id selected for an agent
+* `DA_start` :  unique id selected for an agent
+* `DA_fin` :  unique id selected for an agent
 * `network` : routing network based on OSM data
 * `DAs_to_intersection` : dictionary mapping each DA to nearest graph node 
 * `features` : dictionary with all features existing in simulation
@@ -114,10 +134,7 @@ Selects routing mode for three points from the following options: fastest route,
 **Assumptions**
 - the probability of selecting each routing mode is equal
 -agent is choosing a waypoint based on previously selected activity
--waypoint is approximately minimizing the distance of the route from pointA to waypoint and pointB
-
-**To Do **
--add google maps route 
+-waypoint is approximately minimizing the length of the route from DA_start by waypoint to DA_fin
 
 """					
 function select_route(DA_start::Int, DA_fin::Int, 
