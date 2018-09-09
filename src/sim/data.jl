@@ -109,10 +109,22 @@ function dataframe_to_dict(dataframe::DataFrames.DataFrame, id_col::Symbol)
     return dict
 end
 
+function rrrr(datapath,filename)
+    println("r begin")
+    fff = joinpath(datapath,filename)
+    println(fff)
+    df = CSV.read(fff)
+    println("r end")
+    df
+end
+
+
 function get_demographic_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,Int}}
-    demostats = CSV.read(joinpath(datapath,filename))
-    if !all(in(col, DataFrames.names(demostats)) for col in colnames)
-        error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
+    @info "Start get_demographic_data $datapath $filename"
+    demostats = rrrr(datapath,filename)
+    dfcolnames = DataFrames.names(demostats)
+    for col in colnames
+        in(col, dfcolnames) || error("Wrong column names! DataFrame demostats does not contain $col")        
     end
     demostats = demostats[colnames]
     return OSMSim.dataframe_to_dict(demostats, :DA_ID)
@@ -179,16 +191,23 @@ function get_sim_data(datapath::String;
 	
     mapfile = filenames[:osm]
     bounds,nodes,roadways,intersections,network = OSMSim.read_map_file(datapath, mapfile; road_levels = road_levels)
-    features_data = filenames[:features]
-    features, feature_classes, feature_to_intersections = OSMSim.get_features_data(datapath, features_data, colnames[:features], nodes,network,bounds)
-    DAs_data = filenames[:DAs]
-    DAs_to_intersection = OSMSim.DAs_to_nodes(datapath, DAs_data, colnames[:DAs], nodes,network, bounds)
+    @info "Got read_map_file data"
     demo_stats = filenames[:demo_stats]
     demographic_data = OSMSim.get_demographic_data(datapath, demo_stats, colnames[:demo_stats])
+    @info "Got demo_stats data"
+    features_data = filenames[:features]
+    features, feature_classes, feature_to_intersections = OSMSim.get_features_data(datapath, features_data, colnames[:features], nodes,network,bounds)
+    @info "Got feature_to_intersections data"
+    DAs_data = filenames[:DAs]
+    DAs_to_intersection = OSMSim.DAs_to_nodes(datapath, DAs_data, colnames[:DAs], nodes,network, bounds)
+    @info "Got DAs_to_nodes data"
+    
 	business_stats = filenames[:business_stats]
     business_data = OSMSim.get_business_data(datapath, business_stats, colnames[:business_stats])
+    @info "Got business_stats data"
 	flow_stats = filenames[:flows]
 	flow_dictionary, flow_matrix = OSMSim.get_flow_data(datapath,flow_stats, colnames[:flows])
+	@info "Got flow_matrix data"
 	googleapi_key = nothing
 	if google
 		if !haskey(filenames, :googleapi_key)

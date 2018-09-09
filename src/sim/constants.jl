@@ -10,6 +10,10 @@ const file_names = Dict{Symbol,Union{String,Array{String,1}}}(:osm => "Winnipeg 
 :googleapi_key => "googleapi.key"
 )
  
+#workaround for strange CSV bug
+println("/home/ubuntu/datasets/df_demostat.csv")
+demostat_csv = CSV.read("/home/ubuntu/datasets/df_demostat.csv")
+show(demostat_csv)
 
 const demografic_categories = Dict(
     :age_gender => Dict(
@@ -142,7 +146,7 @@ const demografic_categories = Dict(
  const colnames = Dict(
  :features => [:CATEGORY, :NAME, :LONGITUDE, :LATITUDE],
  :DAs => [:DA_ID, :LONGITUDE, :LATITUDE],
- :demo_stats => vcat([collect(keys(value)) for (key,value) in OSMSim.demografic_categories]...,),
+ :demo_stats => vcat([collect(keys(value)) for (key,value) in demografic_categories]...,),
  :business_stats => [:ICLS_DESC, :DA_ID , :IEMP_DESC],
  :flows  => [:DA_I, :DA_J, :Flow_Volume]
  )
