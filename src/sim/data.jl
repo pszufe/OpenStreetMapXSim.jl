@@ -1,5 +1,7 @@
-#Reading OSM map file 
+using Dates
+using CSVFiles
 
+#Reading OSM map file 
 function read_map_file(datapath::String,filename::String; road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)))
     #preprocessing map file
 	cachefile = joinpath(datapath,filename*".cache")
@@ -39,7 +41,7 @@ function read_features_data(datapath::String,
                             colnames::Array{Symbol,1}) 
     features_data = DataFrames.DataFrame[]
     for filename in filenames
-        frame = CSV.read(joinpath(datapath,filename))
+        frame = DataFrame(CSVFiles.load(joinpath(datapath,filename)))
         if !all(in(col, DataFrames.names(frame)) for col in colnames)
             error("$(filename) has wrong column names! Data Frame should contain $(String.(colnames).*" "... )columns!")
         end
@@ -85,7 +87,7 @@ function DAs_to_nodes(datapath::String, filename::String,
                     nodes::Dict{Int,OpenStreetMap.ENU},
                     network::OpenStreetMap.Network, 
                     bounds::OpenStreetMap.Bounds{OpenStreetMap.LLA})
-    DAframe = CSV.read(joinpath(datapath,filename))
+    DAframe = DataFrame(CSVFiles.load(joinpath(datapath,filename)))
     if !all(in(col, DataFrames.names(DAframe)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -98,7 +100,7 @@ function DAs_to_nodes(datapath::String, filename::String,
     return DAs_to_nodes
 end
 
-#demographic and business data
+
 
 function dataframe_to_dict(dataframe::DataFrames.DataFrame, id_col::Symbol)
     colnames = filter!(x->x != id_col,names(dataframe))
@@ -109,20 +111,11 @@ function dataframe_to_dict(dataframe::DataFrames.DataFrame, id_col::Symbol)
     return dict
 end
 
-function rrrr(datapath,filename)
-    println("r begin")
-    fff = joinpath(datapath,filename)
-    println(fff)
-    df = CSV.read(fff)
-    println("r end")
-    df
-end
-
 
 function get_demographic_data(datapath::String, filename::String, colnames::Array{Symbol,1})::Dict{Int,Dict{Symbol,Int}}
-    @info "Start get_demographic_data $datapath $filename"
-    demostats = rrrr(datapath,filename)
-    dfcolnames = DataFrames.names(demostats)
+    
+    demostats = DataFrame(CSVFiles.load(joinpath(datapath,filename)))
+    dfcolnames = names(demostats)
     for col in colnames
         in(col, dfcolnames) || error("Wrong column names! DataFrame demostats does not contain $col")        
     end
@@ -143,7 +136,7 @@ function string_to_range(string::AbstractString)
 end
  
 function get_business_data(datapath::String, filename::String, colnames::Array{Symbol,1})
-    buss_stats = CSV.read(joinpath(datapath,filename))
+    buss_stats = DataFrame(CSVFiles.load(joinpath(datapath,filename)))
     if !all(in(col, DataFrames.names(buss_stats)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -160,7 +153,8 @@ function get_business_data(datapath::String, filename::String, colnames::Array{S
 end
 
 function get_flow_data(datapath::String, filename::String, colnames::Array{Symbol,1})
-    flows = CSV.read(joinpath(datapath,filename))
+    flows = DataFrame(CSVFiles.load(joinpath(datapath,filename)))
+                                
     if !all(in(col, DataFrames.names(flows)) for col in colnames)
         error("Wrong column names! Data Frame should contain $(String.(colnames).*" "... ) columns!")
     end
@@ -171,11 +165,17 @@ function get_flow_data(datapath::String, filename::String, colnames::Array{Symbo
     return flow_dictionary, flow_matrix
 end
 
+function elapsed(startt::Dates.DateTime)::Int
+    Int(round((Dates.now()-startt).value/1000))
+end
+                            
+                            
 function get_sim_data(datapath::String;
                     filenames::Dict{Symbol,Union{String,Array{String,1}}} = OSMSim.file_names,
                     colnames::Dict{Symbol,Array{Symbol,1}} = OSMSim.colnames, 
                     road_levels::Set{Int} = Set(1:length(OpenStreetMap.ROAD_CLASSES)),
 					google::Bool = false)::OSMSim.SimData
+    startt = Dates.now()        
     files = collect(values(filenames))
     files = vcat(files...)
 	files_in_dir = Set(readdir(datapath))
@@ -183,31 +183,30 @@ function get_sim_data(datapath::String;
 	for filename in files
 		check = filename != filenames[:googleapi_key] || (filename == filenames[:googleapi_key] && google)
 		if !in(filename, files_in_dir) && check
-			println("The file $filename is missing in the directory $datapath")
+			@error "The file $filename is missing in the directory $datapath"
 			found_error = true
 		end	
 	end
 	found_error && error("Some file(s) not found in $datapath")
-	
+    @info "All config files found [$(elapsed(startt))s]"
     mapfile = filenames[:osm]
     bounds,nodes,roadways,intersections,network = OSMSim.read_map_file(datapath, mapfile; road_levels = road_levels)
-    @info "Got read_map_file data"
+    @info "Got read_map_file data [$(elapsed(startt))s]"                                
     demo_stats = filenames[:demo_stats]
     demographic_data = OSMSim.get_demographic_data(datapath, demo_stats, colnames[:demo_stats])
-    @info "Got demo_stats data"
+    @info "Got demo_stats data [$(elapsed(startt))s]"
     features_data = filenames[:features]
     features, feature_classes, feature_to_intersections = OSMSim.get_features_data(datapath, features_data, colnames[:features], nodes,network,bounds)
-    @info "Got feature_to_intersections data"
+    @info "Got feature_to_intersections data [$(elapsed(startt))s]"
     DAs_data = filenames[:DAs]
     DAs_to_intersection = OSMSim.DAs_to_nodes(datapath, DAs_data, colnames[:DAs], nodes,network, bounds)
-    @info "Got DAs_to_nodes data"
-    
+    @info "Got DAs_to_nodes data [$(elapsed(startt))s]"    
 	business_stats = filenames[:business_stats]
     business_data = OSMSim.get_business_data(datapath, business_stats, colnames[:business_stats])
-    @info "Got business_stats data"
+    @info "Got business_stats data [$(elapsed(startt))s]"
 	flow_stats = filenames[:flows]
 	flow_dictionary, flow_matrix = OSMSim.get_flow_data(datapath,flow_stats, colnames[:flows])
-	@info "Got flow_matrix data"
+	@info "Got flow_matrix data [$(elapsed(startt))s]"
 	googleapi_key = nothing
 	if google
 		if !haskey(filenames, :googleapi_key)
@@ -218,7 +217,7 @@ function get_sim_data(datapath::String;
 			read(file, String)
 		end
 	end
-	@info "All data have been read with total of $(length(nodes)) map nodes"
+	@info "All data have been read with total of $(length(nodes)) map nodes  [$(elapsed(startt))s]"
     return OSMSim.SimData(bounds, nodes,
                     roadways, intersections,
                     network,features, feature_classes, 

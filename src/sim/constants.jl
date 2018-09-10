@@ -10,10 +10,6 @@ const file_names = Dict{Symbol,Union{String,Array{String,1}}}(:osm => "Winnipeg 
 :googleapi_key => "googleapi.key"
 )
  
-#workaround for strange CSV bug
-println("/home/ubuntu/datasets/df_demostat.csv")
-demostat_csv = CSV.read("/home/ubuntu/datasets/df_demostat.csv")
-show(demostat_csv)
 
 const demografic_categories = Dict(
     :age_gender => Dict(
