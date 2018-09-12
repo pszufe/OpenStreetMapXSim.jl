@@ -43,8 +43,8 @@ function run_simulation(sim_data::OSMSim.SimData,
     buffer = Array{OSMSim.Road,1}()
     for i = 1:N
         OSMSim.run_once!(sim_data,buffer,nodes_stats,destination_selector, google = google)
-		i == 1 && @info "First simulation completed"
+		i == 1 && @info "Worker $(myid()): First simulation completed"
     end
-	@info "All $N simulations completed"
+	@info "Worker $(myid()): All $N simulations completed"
     return nodes_stats,buffer
 end
