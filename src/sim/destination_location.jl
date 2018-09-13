@@ -59,7 +59,7 @@ Selects destination DA_work for an agent choosing a proper industry and then by 
     
 **Arguments**
 * `agent_profile` : agent demographic profile
-* `sim_data ` :  simulation data with all important data 
+* `sim_data ` :  `SimData` object 
 * `industry` : dictionary matching industry demographic data from business_data with the ones selected 
 
 **Assumptions based on agent demographic profile

@@ -1,3 +1,15 @@
+"""
+Names of datasets and other objects used in simulation:
+
+**Keys**
+* `:osm` : an open street map object **(mandatory)**
+* `:features` : an array of csv file names with informations about all the features (points representing crucial objects, like schools, recreation areas, shops locations, etc.) used in simulation **(mandatory)** 
+* `:flows` : csv file with informations about flows from each DA to another
+* `:DAs` : csv file with centroids coordinates of every DA **(mandatory)** 
+* `:demo_stats` : csv file with demographic data of every DA **(mandatory)** 
+* `:business_stats` : csv file with data about workplaces in simulation's area (its localisation, industry, number of workers)
+* `:googleapi_key` : a string containg unique *Google Distances API* key
+"""
 const file_names = Dict{Symbol,Union{String,Array{String,1}}}(:osm => "Winnipeg CMA.osm",
 :features => [ "df_popstores.csv",
   "df_schools.csv",
@@ -10,7 +22,16 @@ const file_names = Dict{Symbol,Union{String,Array{String,1}}}(:osm => "Winnipeg 
 :googleapi_key => "googleapi.key"
 )
  
+"""
+A dictionary of dictionaries structuring the way how the demographic data will influence the demographic profile of agents in simulation. It is based on the mandatory `:demo_stats` data frame which is containing an informations about socio-demographic structure of each DA. 
 
+
+The construction of `demografic_categories` dictionary is following:
+* Each key is an agent's demographic attribute.
+* Values of a `demografic_categories` dictionary are also the dictionaries.
+* Each of this sub-dictionaries  is mapping the specified `:demo_stats` data frame columns with their possible values.
+
+"""
 const demografic_categories = Dict(
     :age_gender => Dict(
     :ECYHMA2024 => ("M", (20:24)), #"Male Household Population by Age - 20 To 24",
@@ -139,19 +160,11 @@ const demografic_categories = Dict(
     ),
 )
 
- const colnames = Dict(
- :features => [:CATEGORY, :NAME, :LONGITUDE, :LATITUDE],
- :DAs => [:DA_ID, :LONGITUDE, :LATITUDE],
- :demo_stats => vcat([collect(keys(value)) for (key,value) in demografic_categories]...,),
- :business_stats => [:ICLS_DESC, :DA_ID , :IEMP_DESC],
- :flows  => [:DA_I, :DA_J, :Flow_Volume]
- )
- 
- 
+
 """
 Industry dictionary for agent_profile:
-* `key` : industry from agent_profile
-* `value` : industry from business_data
+* `key` : industry from agent's demographic profile
+* `value` : industry from business_data dataset
 """
 const industry = Dict(
     "Manufacturing"                       => ["Manufacturing", "Unassigned"], 
@@ -188,7 +201,7 @@ const industry = Dict(
 """
 Dictionary mapping children age with school category
 * `key` : children age intervals 
-* `value` : correspoding school
+* `value` : correspoding school category
 """
 const school_category = Dict(
     (0:3) => "Child Care Facility",
@@ -206,6 +219,11 @@ const recreation_probabilities = Dict{Symbol,Dict{Union{String,UnitRange{Int}},F
 )
 
 # shopping probabilities - assuming no differences between females and males 
+"""
+Dictionary mapping different types of stores with probabilities
+* `key` : types of store 
+* `value` : probability
+"""
 const shopping_probabilities = Dict("shopping centre" => 1/28, # once a month
 "drugstore" => 1/21, # every three weeks
 "petrol station" => 1/7,
@@ -215,6 +233,7 @@ const shopping_probabilities = Dict("shopping centre" => 1/28, # once a month
 "grocery" => 2/7,  
 "discount" => 1/7,
 "mass merchandise" => 1/14)
+
 
 const school_probability = .41
 
