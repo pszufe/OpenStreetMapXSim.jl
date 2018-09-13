@@ -8,6 +8,7 @@ using CSV
 using SparseArrays
 using Main.OpenStreetMap
 using Serialization
+using Distributed
 
 export get_sim_data
 export start_location
