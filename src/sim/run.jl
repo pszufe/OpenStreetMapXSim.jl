@@ -3,13 +3,15 @@
 ######################
 
 """
-Start location selector
-
-Selects starting DA centroid for an agent randomly weighted by weight_var (when weight_var is not defined DA centroid is chosen uniformly) 
+Run one simulation iteration 
     
 **Arguments**
-* `demostat` : dictionary with socio-demographic profile of each DA
+* `sim_data` : `SimData` object
+* `buffer` : list of `OSMSim.Road` objects containing informations about routes selected during the simulation run.
+* `nodes_stats` : dictionary of `OSMSim.NodeStat` objects containing informations about each intersection in simulation.
+* `destination_selector` : string determining a way how the destination (workplace) will be selected (based on journey matrix, business data or on both)
 * `weight_var` : weighting variable name (or nothing)
+* `google` : boolean variable; if true simulation will generates routes based on Google Distances API
 """
 function run_once!(sim_data::OSMSim.SimData,
                             buffer::Array{OSMSim.Road,1},
@@ -49,17 +51,21 @@ function run_once!(sim_data::OSMSim.SimData,
 end
 
 """
-Start location selector
+Run simulation
 
-Selects starting DA centroid for an agent randomly weighted by weight_var (when weight_var is not defined DA centroid is chosen uniformly) 
+Run simulation for data stored in `SimData` object
     
 **Arguments**
-* `demostat` : dictionary with socio-demographic profile of each DA
+* `sim_data` : `SimData` object
+* `destination_selector` : string determining a way how the destination (workplace) will be selected (based on journey matrix, business data or on both)
+* `N` : number of iterations
 * `weight_var` : weighting variable name (or nothing)
+* `google` : boolean variable; if true simulation will generates routes based on Google Distances API
 """
 function run_simulation(sim_data::OSMSim.SimData,
             destination_selector::String,
-            N::Int; weight_var::Union{Symbol,Nothing} = OSMSim.weight_var, 
+            N::Int; 
+			weight_var::Union{Symbol,Nothing} = OSMSim.weight_var, 
 			google::Bool = false)
 	if !in(destination_selector,["flows","business","both"])
 		error("destination_selector not declared properly! It can only takes flows, business or both values!")
