@@ -17,11 +17,11 @@ function run_once!(sim_data::OSMSim.SimData,
                             buffer::Array{OSMSim.Road,1},
                             nodes_stats::Dict{Int,OSMSim.NodeStat},
                             destination_selector::String; 
-							weight_var:: Union{Symbol,Nothing},
+							weight_var:: Union{Symbol,Nothing} = nothing,
 							google::Bool = false
                             )  
-    loc = OSMSim.start_location(sim_data.demographic_data)
-    agent = OSMSim.demographic_profile(loc, sim_data.demographic_data[loc], weight_var = weight_var)
+    loc = OSMSim.start_location(sim_data.demographic_data, weight_var = weight_var)
+    agent = OSMSim.demographic_profile(loc, sim_data.demographic_data[loc])
     if destination_selector == "flows"
         OSMSim.destination_location!(agent,sim_data.DAs_flow_dictionary,sim_data.DAs_flow_matrix)
     elseif destination_selector == "business"
@@ -30,7 +30,7 @@ function run_once!(sim_data::OSMSim.SimData,
 		OSMSim.destination_location!(agent,sim_data)
     end
     #before work
-    activity = OSMSim.additional_activity(agent,true)	
+    activity = OSMSim.additional_activity(sim_data.feature_classes)	
     if isa(activity,Nothing)
         route = OSMSim.select_route(agent.DA_home[1], agent.DA_work[1],sim_data, buffer, google = google)
         OSMSim.stats_aggregator!(nodes_stats, agent, route)
@@ -39,7 +39,7 @@ function run_once!(sim_data::OSMSim.SimData,
         OSMSim.stats_aggregator!(nodes_stats, agent, route)
     end
     #after work
-    activity = OSMSim.additional_activity(agent,false)
+    activity = OSMSim.additional_activity(sim_data.feature_classes)
     if isa(activity,Nothing)
         route = OSMSim.select_route(agent.DA_work[1], agent.DA_home[1], sim_data, buffer,google = google)
         OSMSim.stats_aggregator!(nodes_stats, agent, route)

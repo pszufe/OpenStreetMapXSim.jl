@@ -16,6 +16,8 @@ Creates socio-demographic profile of an agent based on demostats distributions p
 function demographic_profile(DA_home::Int, DA_demostat::Dict{Symbol,Int};
 							demografic_categories = OSMSim.demografic_categories)::DataFrames.DataFrame
 	profile = Dict()
+	profile[:DA_home] = DA_home
+	profile[:DA_work] = 0
 	for key in keys(demografic_categories)
 		categories = demografic_categories[key]
 		weights = StatsBase.fweights(get.(Ref(DA_demostat), collect(keys(categories)), 0))
