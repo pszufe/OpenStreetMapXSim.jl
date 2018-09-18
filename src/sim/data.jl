@@ -21,9 +21,9 @@ The `colnames` dictionary is used to create the `SimData` object. The role of th
 * `demo_stats` : a list of columns which must be included in the csv file with the demographic data used in simulation. **Warning:** Columns must be described in a separate `demografic_categories` dictionary.
  
 * `:business_stats` : a list of columns in the csv file with the business data used in simulation.
-    * `:ICLS_DESC` : industry of each company
+    * `:ICLS_DESC` : name of industry of each company
     * `:DA_ID` : ID of a DA where company is located 
-    * `:IEMP_DESC` : number of employees intervals
+    * `:IEMP_DESC` : number of employees intervals, stored as a string, e.g. "1:4"
     
 * `:flows`  : a list of columns  in the csv file with the flows between DAs.
     * `:DA_I` : ID of start DA
