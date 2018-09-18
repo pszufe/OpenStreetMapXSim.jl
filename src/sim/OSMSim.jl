@@ -1,5 +1,6 @@
 module OSMSim 
 
+
 using DataFrames
 using StatsBase
 using HTTP
@@ -9,6 +10,9 @@ using SparseArrays
 using Main.OpenStreetMap
 using Serialization
 using Distributed
+using Dates
+using CSVFiles
+
 
 export get_sim_data
 export start_location

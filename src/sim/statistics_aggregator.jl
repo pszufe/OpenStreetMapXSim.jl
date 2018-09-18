@@ -7,7 +7,7 @@ node statistics
 Creates a dictionary with keys as unique intersections ids and values as NodeStat struct containing coordinates of each intersection, number of agents driving by each intersection and their demographic profiles stored in data frame.
     
 **Arguments**
-* `sim_data` : data used in sumulation 
+* `sim_data` : `SimData` object used in sumulation 
 
 """
 function node_statistics(sim_data::OSMSim.SimData)::Dict{Int,OSMSim.NodeStat}

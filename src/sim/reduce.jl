@@ -8,7 +8,7 @@ Reduce buffers
 Join buffers returned by multiple runs of simulation
     
 **Arguments**
-* `buffer` : list of OSMSim.Road objects containing informations about routes selected during the simulation run.
+* `buffer` : list of `OSMSim.Road` objects containing informations about routes selected during the simulation run.
 
 """
 function reduce_results(buffer::Array{OSMSim.Road,1}...)::Array{OSMSim.Road,1}
@@ -29,7 +29,7 @@ Reduce nodes statistics
 Join nodes statistics returned by multiple runs of simulation
     
 **Arguments**
-* `nodes` : dictionary of OSMSim.NodeStat objects containing informations about each intersection in simulation.
+* `nodes` : dictionary of `OSMSim.NodeStat` objects containing informations about each intersection in simulation.
 
 """
 function reduce_results(nodes::Dict{Int64,OSMSim.NodeStat}...)::Dict{Int64,OSMSim.NodeStat}

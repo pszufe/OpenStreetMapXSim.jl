@@ -5,16 +5,16 @@
 """
 Route selector
 
-Finds a route by using a choosen mode (fastest, shortest or based on google distances API) and returns intersections indeces for the route
+Finds a route by using a choosen mode (fastest, shortest or based on Google Distances API) and returns intersections indeces for the route
     
 **Arguments**
-* `start_node` :  unique id selected for an agent
-* `waypoint` :  unique id of a waypoint or nothing when agent is driving directly from *start_node* to *fin_node*
-* `fin_node` :  unique id selected for an agent
+* `start_node` : unique start node id selected for an agent
+* `waypoint` :  unique  node id of a waypoint or nothing when agent is driving directly from *start_node* to *fin_node*
+* `fin_node` :  unique finish id selected for an agent
 * `activity` : string with category of  waypoint or nothing when agent is driving directly from *start_node* to *fin_node*
-* `sim_data` : simulation data struct
-* `buffer` : array with already chosen routes 
-* `routing_mode` : string determining a way how the route will be selected (fastest, shortest or based on Google API)
+* `sim_data` : `SimData` object
+* `buffer` : array with already chosen routes stored as a `Road` object
+* `routing_mode` : string determining a way how the route will be selected (fastest, shortest or based on Google Distances API)
 
 """
 function get_route(start_node::Int,
@@ -60,10 +60,10 @@ Waypoint selector
 Selects waypoint by minimizing the length of the route from DA_start by waypoint to DA_fin
     
 **Arguments**
-* `start_node` :  unique id selected for an agent
-* `fin_node` :  unique id selected for an agent
+* `start_node` :  unique start node id selected for an agent
+* `fin_node` :  unique finish node id selected for an agent
 * `activity` : string with category of sought waypoint
-* `sim_data` : simulation data struct
+* `sim_data` : `SimData` object
 * `exact` : boolean value indicing how the waypoint will be chosen (with approximate or exact algorithm) 
 
 """
@@ -86,11 +86,11 @@ Route module selector
 Selects routing mode for two points from the following options: fastest route, shortest route or google route and returns a node indices of the choosen route 
     
 **Arguments**
-* `DA_start` : DA_start unique id selected for an agent
-* `DA_fin` : DA_fin unique id selected for an agent
+* `DA_start` : unique DA unique id selected for an agent
+* `DA_fin` : unique DA unique id selected for an agent
 * `sim_data` : simulation data struct
 * `DAs_to_intersection` : dictionary mapping each DA to nearest graph node 
-* `buffer` : array with already chosen routes 
+* `buffer` : array with already chosen routes stored as a `Road` object
 
 **Assumptions**
 - the probability of selecting each routing mode is equal
@@ -122,14 +122,14 @@ Route module selector for three points
 Selects routing mode for three points from the following options: fastest route, shortest route or google route and returns a node indices of the choosen route 
     
 **Arguments**
-* `DA_start` :  unique id selected for an agent
-* `DA_fin` :  unique id selected for an agent
+* `DA_start` :  unique DA id selected for an agent
+* `DA_fin` :  unique DA id selected for an agent
 * `network` : routing network based on OSM data
 * `DAs_to_intersection` : dictionary mapping each DA to nearest graph node 
 * `features` : dictionary with all features existing in simulation
 * `feature_classes` : dictionary mapping each category to proper integer number
 * `feature_to_intersections` : dictionary mapping each feature to nearest graph node 
-* `buffer` : array with already chosen routes 
+* `buffer` : array with already chosen routes stored as a `Road` object
 
 **Assumptions**
 - the probability of selecting each routing mode is equal
