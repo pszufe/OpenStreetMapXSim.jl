@@ -77,7 +77,7 @@ function run_simulation(sim_data::OSMSim.SimData,
     routes = Dict()
     for i = 1:N
         agentid = (job*1000000) + i
-        routes[agentid] = OSMSim.run_once!(sim_data,buffer,nodes_stats,destination_selector,agentid, weight_var = weight_var google = google)
+        routes[agentid] = OSMSim.run_once!(sim_data,buffer,nodes_stats,destination_selector,agentid, weight_var = weight_var, google = google)
 		i == 1 && @info "Worker: $(Distributed.myid()) First simulation completed"
     end
     #$(Distributed.myid())
