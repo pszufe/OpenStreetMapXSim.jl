@@ -5,13 +5,11 @@ using DataFrames
 using StatsBase
 using HTTP
 using JSON
-using CSV
 using SparseArrays
-using Main.OpenStreetMap2
+using OpenStreetMapX
 using Serialization
 using Distributed
 using Dates
-using CSVFiles
 using Nanocsv
 using Random
 

@@ -45,9 +45,9 @@ Parse .osm file and create the road network based on the map data.
 **Arguments**
 * `datapath` : path with an .osm file
 * `filename` : name of .osm file
-* `road_levels` : a set with the road categories (see: OpenStreetMap2.ROAD_CLASSES for more informations)
+* `road_levels` : a set with the road categories (see: OpenStreetMapX.ROAD_CLASSES for more informations)
 """
-function read_map_file(datapath::String,filename::String; road_levels::Set{Int} = Set(1:length(OpenStreetMap2.ROAD_CLASSES)))
+function read_map_file(datapath::String,filename::String; road_levels::Set{Int} = Set(1:length(OpenStreetMapX.ROAD_CLASSES)))
     #preprocessing map file
 	cachefile = joinpath(datapath,filename*".cache")
 	if isfile(cachefile)
@@ -56,16 +56,16 @@ function read_map_file(datapath::String,filename::String; road_levels::Set{Int} 
 		close(f);
 		@info "Read map data from cache $cachefile"
 	else
-		mapdata = OpenStreetMap2.parseOSM(joinpath(datapath,filename))
-		OpenStreetMap2.crop!(mapdata,crop_relations = false)
+		mapdata = OpenStreetMapX.parseOSM(joinpath(datapath,filename))
+		OpenStreetMapX.crop!(mapdata,crop_relations = false)
 		#preparing data for simulation
 		bounds = mapdata.bounds
-		nodes = OpenStreetMap2.ENU(mapdata.nodes,OpenStreetMap2.center(bounds))
-		highways = OpenStreetMap2.filter_highways(OpenStreetMap2.extract_highways(mapdata.ways))
-		roadways = OpenStreetMap2.filter_roadways(highways, levels= road_levels)
-		intersections = OpenStreetMap2.find_intersections(roadways)
-		segments = OpenStreetMap2.find_segments(nodes,roadways,intersections)
-		network = OpenStreetMap2.create_graph(segments,intersections,OpenStreetMap2.classify_roadways(roadways))
+		nodes = OpenStreetMapX.ENU(mapdata.nodes,OpenStreetMapX.center(bounds))
+		highways = OpenStreetMapX.filter_highways(OpenStreetMapX.extract_highways(mapdata.ways))
+		roadways = OpenStreetMapX.filter_roadways(highways, levels= road_levels)
+		intersections = OpenStreetMapX.find_intersections(roadways)
+		segments = OpenStreetMapX.find_segments(nodes,roadways,intersections)
+		network = OpenStreetMapX.create_graph(segments,intersections,OpenStreetMapX.classify_roadways(roadways))
 		#remove unuseful nodes
 		roadways_nodes = unique(vcat(collect(way.nodes for way in roadways)...))
 		nodes = Dict(key => nodes[key] for key in roadways_nodes)
@@ -113,17 +113,17 @@ Find the nearest node for every feature
 * `bounds` : map bounds
 """
 function features_to_nodes(frame::DataFrames.DataFrame,
-                            nodes::Dict{Int,OpenStreetMap2.ENU},
-                            bounds::OpenStreetMap2.Bounds{OpenStreetMap2.LLA})
+                            nodes::Dict{Int,OpenStreetMapX.ENU},
+                            bounds::OpenStreetMapX.Bounds{OpenStreetMapX.LLA})
     coordinates = values(nodes)
     features = Dict{Int,Tuple{String,String}}()
     sizehint!(features,DataFrames.nrow(frame))
     for i = 1:DataFrames.nrow(frame)
-        loc = OpenStreetMap2.ENU(OpenStreetMap2.LLA(frame[:LATITUDE][i], frame[:LONGITUDE][i]), OpenStreetMap2.center(bounds))
-        if !OpenStreetMap2.inbounds(loc,OpenStreetMap2.ENU(bounds, OpenStreetMap2.center(bounds)))
-            loc = OpenStreetMap2.boundary_point(loc, OpenStreetMap2.ENU(center(bounds), center(bounds)), OpenStreetMap2.ENU(bounds, center(bounds)))
+        loc = OpenStreetMapX.ENU(OpenStreetMapX.LLA(frame[:LATITUDE][i], frame[:LONGITUDE][i]), OpenStreetMapX.center(bounds))
+        if !OpenStreetMapX.inbounds(loc,OpenStreetMapX.ENU(bounds, OpenStreetMapX.center(bounds)))
+            loc = OpenStreetMapX.boundary_point(loc, OpenStreetMapX.ENU(center(bounds), center(bounds)), OpenStreetMapX.ENU(bounds, center(bounds)))
         end
-        node = OpenStreetMap2.add_new_node!(nodes,loc)
+        node = OpenStreetMapX.add_new_node!(nodes,loc)
         features[node] = (frame[:CATEGORY][i], frame[:NAME][i])
     end
     return features
@@ -142,13 +142,13 @@ Prepare features data objects.
 """
 function get_features_data(datapath::String, filenames::Array{String,1},
                         colnames::Array{Symbol,1},
-                        nodes::Dict{Int,OpenStreetMap2.ENU},
-                        network::OpenStreetMap2.Network,
-                        bounds::OpenStreetMap2.Bounds{OpenStreetMap2.LLA})
+                        nodes::Dict{Int,OpenStreetMapX.ENU},
+                        network::OpenStreetMapX.Network,
+                        bounds::OpenStreetMapX.Bounds{OpenStreetMapX.LLA})
     features_dataframe = OSMSim.read_features_data(datapath, filenames,colnames)
     features = OSMSim.features_to_nodes(features_dataframe,nodes,bounds)
     feature_classes = Dict{String,Int}(zip(unique(features_dataframe[:CATEGORY]) , Set(1:length(unique(features_dataframe[:CATEGORY])))))
-    feature_to_intersections = OpenStreetMap2.features_to_graph(nodes,features, network)
+    feature_to_intersections = OpenStreetMapX.features_to_graph(nodes,features, network)
     return features, feature_classes, feature_to_intersections
 end
 
@@ -166,9 +166,9 @@ Read a csv file with informations about DAs and then for each DA find the neares
 """
 function DAs_to_nodes(datapath::String, filename::String,
                     colnames::Array{Symbol,1},
-                    nodes::Dict{Int,OpenStreetMap2.ENU},
-                    network::OpenStreetMap2.Network,
-                    bounds::OpenStreetMap2.Bounds{OpenStreetMap2.LLA})
+                    nodes::Dict{Int,OpenStreetMapX.ENU},
+                    network::OpenStreetMapX.Network,
+                    bounds::OpenStreetMapX.Bounds{OpenStreetMapX.LLA})
     DAframe = Nanocsv.read_csv(joinpath(datapath,filename))
 	  #DataFrame(CSVFiles.load(joinpath(datapath,filename)))
     if !all(in(col, DataFrames.names(DAframe)) for col in colnames)
@@ -177,8 +177,8 @@ function DAs_to_nodes(datapath::String, filename::String,
     DAs_to_nodes = Dict{Int,Int}()
     sizehint!(DAs_to_nodes,DataFrames.nrow(DAframe))
     for i = 1:DataFrames.nrow(DAframe)
-        coords = OpenStreetMap2.ENU(OpenStreetMap2.LLA(DAframe[:LATITUDE][i], DAframe[:LONGITUDE][i]), OpenStreetMap2.center(bounds))
-        DAs_to_nodes[DAframe[:DA_ID][i]] = OpenStreetMap2.nearest_node(nodes,coords,network)
+        coords = OpenStreetMapX.ENU(OpenStreetMapX.LLA(DAframe[:LATITUDE][i], DAframe[:LONGITUDE][i]), OpenStreetMapX.center(bounds))
+        DAs_to_nodes[DAframe[:DA_ID][i]] = OpenStreetMapX.nearest_node(nodes,coords,network)
     end
     return DAs_to_nodes
 end
@@ -303,13 +303,13 @@ Read data files and create a `SimData` object
 * `datapath` : path with csv files
 * `filename` : name of csv file
 * `colnames` : an array of columns which must be included in each file
-* `road_levels` : a set with the road categories (see: OpenStreetMap2.ROAD_CLASSES for more informations)
+* `road_levels` : a set with the road categories (see: OpenStreetMapX.ROAD_CLASSES for more informations)
 * `google` : boolean variable; indicate whether google Distances API key will be included
 """
 function get_sim_data(datapath::String;
                     filenames::Dict{Symbol,Union{String,Array{String,1}}} = OSMSim.file_names,
                     colnames::Dict{Symbol,Array{Symbol,1}} = OSMSim.colnames,
-                    road_levels::Set{Int} = Set(1:length(OpenStreetMap2.ROAD_CLASSES)),
+                    road_levels::Set{Int} = Set(1:length(OpenStreetMapX.ROAD_CLASSES)),
 					google::Bool = false)::OSMSim.SimData
     startt = Dates.now()
     files = collect(values(filenames))

@@ -13,7 +13,7 @@ Creates a dictionary with keys as unique intersections ids and values as NodeSta
 function node_statistics(sim_data::OSMSim.SimData)::Dict{Int,OSMSim.NodeStat}
     nodes_stats = Dict{Int,OSMSim.NodeStat}()
     for (key,value) in sim_data.intersections
-        coords = OpenStreetMap2.LLA(sim_data.nodes[key],OpenStreetMap2.center(sim_data.bounds))
+        coords = OpenStreetMapX.LLA(sim_data.nodes[key],OpenStreetMapX.center(sim_data.bounds))
         latitude, longitude = coords.lat, coords.lon
         nodes_stats[key] = OSMSim.NodeStat(0,latitude,longitude,nothing)
     end

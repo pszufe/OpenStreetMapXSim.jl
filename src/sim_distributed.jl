@@ -30,7 +30,7 @@ function run_dist_sim(resultspath,version::String,N::Int,max_jobs_worker::Int,si
 	    filenamebase="res_V$(version)_M$(mode)_W$(@sprintf("%04d", Distributed.myid()))_S$(@sprintf("%05d",d))"
 	    filenodes  = "$(filenamebase)_nodes.csv"
 	    targetfile=joinpath(resultspath,filenodes)
-		CSVFiles.save(targetfile,results, delim = ';')
+		Nanocsv.write_csv(targetfile,results, delim = ';')
 	    #s3copy(resultspath, filenodes)
 	    fileroutes = "$(filenamebase)_routes.csv"
 	    f = open(joinpath(resultspath, fileroutes),"w")

@@ -1,4 +1,4 @@
-#using Pkg;Pkg.add(PackageSpec(url="https://github.com/bkamins/Nanocsv.jl"))
+#
 
 using Distributed
 #w = 2
@@ -11,13 +11,11 @@ begin
     using Random
     using Dates
     using Distributed
-    using CSVFiles
     using Printf
     using Nanocsv
-    pth = "osm/";
+    using OpenStreetMapX
     path = "sim/";
     datapath = "../datasets/";
-    include(joinpath(pth,"OpenStreetMap2.jl"))
     include(joinpath(path,"OSMSim.jl"))
     using Main.OSMSim
     mode = "flows";

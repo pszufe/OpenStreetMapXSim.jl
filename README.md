@@ -1,5 +1,5 @@
 # OSMsim.jl
-OpenStreetMap2 - routing and simulations library
+OSMsim- map simulations library
 
 ## Installation
 
@@ -18,6 +18,16 @@ add Query
 add Shapefile
 add LibExpat
 add LightGraphs
+```
+
+Additionally OpenStreetMapX and Nanocsv are used:
+
+```julia
+using Pkg
+Pkg.add(PackageSpec(url="https://github.com/pszufe/OpenStreetMapX.jl"))
+Pkg.add(PackageSpec(url="https://github.com/bkamins/Nanocsv.jl"))
+#optionally add for plotting:
+Pkg.add(PackageSpec(url="https://github.com/pszufe/OpenStreetMapXPlot.jl"))
 ```
 
 

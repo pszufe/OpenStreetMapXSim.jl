@@ -9,7 +9,7 @@ Dictionary for Google Distances API requests:
 * `:url` : url for google API, only JSON files outputs are accepted 
 * `:mode` : transportation mode used in simulation, in the current library scope only driving is accepted
 * `:avoid` : map features to avoid (to mantain compatibility with OSM routes ferries should be avoided)
-* `:units` : unit system for displaing distances (changing to *imperial* needs deeper changes in both OSMsim and OpenStreetMap2 modules) 
+* `:units` : unit system for displaing distances (changing to *imperial* needs deeper changes in both OSMsim and OpenStreetMapX modules) 
 
 """
 const googleAPI_parameters = Dict{Symbol,String}(
@@ -29,7 +29,7 @@ Convert node coordinates (stored in ENU system) to string with LLA system coordi
 
 """
 function node_to_string(node_id::Int,sim_data::OSMSim.SimData)
-    coords = OpenStreetMap2.LLA(sim_data.nodes[node_id],sim_data.bounds)
+    coords = OpenStreetMapX.LLA(sim_data.nodes[node_id],sim_data.bounds)
     return string(coords.lat,",",coords.lon)
 end
 
@@ -117,11 +117,11 @@ Match Google route with vertices of map network
 
 """
 function google_route_to_network(route::Array{Tuple{Float64,Float64},1},sim_data::OSMSim.SimData)
-    route = [OpenStreetMap2.ENU(OpenStreetMap2.LLA(coords[1], coords[2]),sim_data.bounds) for coords in route]
-    res = [OpenStreetMap2.nearest_node(sim_data.nodes, route[1], sim_data.network)]
+    route = [OpenStreetMapX.ENU(OpenStreetMapX.LLA(coords[1], coords[2]),sim_data.bounds) for coords in route]
+    res = [OpenStreetMapX.nearest_node(sim_data.nodes, route[1], sim_data.network)]
     index = 2
     for i = 2:length(route)
-        node = OpenStreetMap2.nearest_node(sim_data.nodes, route[i], sim_data.network)
+        node = OpenStreetMapX.nearest_node(sim_data.nodes, route[i], sim_data.network)
         if node != res[index-1]
             push!(res,node)
             index += 1
@@ -158,10 +158,10 @@ function get_google_route(origin::Int,destination::Int,waypoint::Int,
         #get route based on OSM routing
         warn("Google Distances API cannot get a proper results - route will be calculated with OSMSim Routing module")
 		if rand() < 0.5
-			route_nodes, distance, route_time = OpenStreetMap2.shortest_route(sim_data.network, origin, waypoint, destination)
+			route_nodes, distance, route_time = OpenStreetMapX.shortest_route(sim_data.network, origin, waypoint, destination)
 			return route_nodes, "shortest"
 		else
-			route_nodes, distance, route_time = OpenStreetMap2.fastest_route(sim_data.network, origin, waypoint, destination)
+			route_nodes, distance, route_time = OpenStreetMapX.fastest_route(sim_data.network, origin, waypoint, destination)
 			return route_nodes, "fastest"
 		end
     end
@@ -194,10 +194,10 @@ function get_google_route(origin::Int,destination::Int,
         #get route based on OSM routing
         warn("Google Distances API cannot get a proper results - route will be calculated with OSMSim Routing module")
 		if rand() < 0.5
-			route_nodes, distance, route_time = OpenStreetMap2.shortest_route(sim_data.network, origin, destination)
+			route_nodes, distance, route_time = OpenStreetMapX.shortest_route(sim_data.network, origin, destination)
 			return route_nodes, "shortest"
 		else
-			route_nodes, distance, route_time = OpenStreetMap2.fastest_route(sim_data.network, origin, destination)
+			route_nodes, distance, route_time = OpenStreetMapX.fastest_route(sim_data.network, origin, destination)
 			return route_nodes, "fastest"
 		end
     end
