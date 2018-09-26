@@ -3,8 +3,8 @@
 ######################
 
 """
-Run one simulation iteration 
-    
+Run one simulation iteration
+
 **Arguments**
 * `sim_data` : `SimData` object
 * `buffer` : list of `OSMSim.Road` objects containing informations about routes selected during the simulation run.
@@ -17,10 +17,10 @@ function run_once!(sim_data::OSMSim.SimData,
                             buffer::Array{OSMSim.Road,1},
                             nodes_stats::Dict{Int,OSMSim.NodeStat},
                             destination_selector::String,
-							agentid::Int; 
+							agentid::Int;
 							weight_var:: Union{Symbol,Nothing} = nothing,
-							google::Bool = false     
-							)  
+							google::Bool = false
+							)
     loc = OSMSim.start_location(sim_data.demographic_data, weight_var = weight_var)
     agent = OSMSim.demographic_profile(loc, sim_data.demographic_data[loc])
     agent[:id]=agentid
@@ -32,11 +32,11 @@ function run_once!(sim_data::OSMSim.SimData,
 		OSMSim.destination_location!(agent,sim_data)
     end
     #before work
-    activity = OSMSim.additional_activity(sim_data.feature_classes)	
+    activity = OSMSim.additional_activity(sim_data.feature_classes)
     if isa(activity,Nothing)
-        routebefore = OSMSim.select_route(agent.DA_home[1], agent.DA_work[1],sim_data, buffer, google = google)        
+        routebefore = OSMSim.select_route(agent.DA_home[1], agent.DA_work[1],sim_data, buffer, google = google)
     else
-        routebefore = OSMSim.select_route(agent.DA_home[1], agent.DA_work[1], activity,sim_data, buffer,google = google)        
+        routebefore = OSMSim.select_route(agent.DA_home[1], agent.DA_work[1], activity,sim_data, buffer,google = google)
     end
     OSMSim.stats_aggregator!(nodes_stats, agent, routebefore)
     local routeafter
@@ -45,7 +45,7 @@ function run_once!(sim_data::OSMSim.SimData,
     if isa(activity,Nothing)
         routeafter = OSMSim.select_route(agent.DA_work[1], agent.DA_home[1], sim_data, buffer,google = google)
     else
-        routeafter = OSMSim.select_route(agent.DA_work[1], agent.DA_home[1], activity, sim_data, buffer,google = google)        
+        routeafter = OSMSim.select_route(agent.DA_work[1], agent.DA_home[1], activity, sim_data, buffer,google = google)
     end
     OSMSim.stats_aggregator!(nodes_stats, agent, routeafter)
     return (routebefore,routeafter)
@@ -55,7 +55,7 @@ end
 Run simulation
 
 Run simulation for data stored in `SimData` object
-    
+
 **Arguments**
 * `sim_data` : `SimData` object
 * `destination_selector` : string determining a way how the destination (workplace) will be selected (based on journey matrix, business data or on both)
@@ -66,8 +66,8 @@ Run simulation for data stored in `SimData` object
 function run_simulation(sim_data::OSMSim.SimData,
             destination_selector::String,
 			job::Int,
-            N::Int; 
-			weight_var::Union{Symbol,Nothing} = OSMSim.weight_var, 
+            N::Int;
+			weight_var::Union{Symbol,Nothing} = OSMSim.weight_var,
 			google::Bool = false)
 	if !in(destination_selector,["flows","business","both"])
 		error("destination_selector not declared properly! It can only takes flows, business or both values!")
@@ -75,12 +75,15 @@ function run_simulation(sim_data::OSMSim.SimData,
     nodes_stats = OSMSim.node_statistics(sim_data)
     buffer = Array{OSMSim.Road,1}()
     routes = Dict()
+	startt = Dates.now()
+	@info "Worker $(myid()) Starting simulation for seed $job at $startt"
+    Random.seed!(job);
     for i = 1:N
         agentid = (job*1000000) + i
         routes[agentid] = OSMSim.run_once!(sim_data,buffer,nodes_stats,destination_selector,agentid, weight_var = weight_var, google = google)
-		i == 1 && @info "Worker: $(Distributed.myid()) First simulation completed"
+		i == 1 && @info "Worker: $(Distributed.myid()) First out of $N simulation completed"
     end
     #$(Distributed.myid())
-	@info "Worker: $(Distributed.myid()) All $N simulations completed"
+	@info "Worker: $(Distributed.myid()) All $N sims completed with time per sim = $((Dates.now()-startt).value/N)ms"
     return nodes_stats,buffer,routes
 end

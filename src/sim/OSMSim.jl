@@ -1,4 +1,4 @@
-module OSMSim 
+module OSMSim
 
 
 using DataFrames
@@ -12,7 +12,8 @@ using Serialization
 using Distributed
 using Dates
 using CSVFiles
-
+using Nanocsv
+using Random
 
 export get_sim_data
 export start_location
