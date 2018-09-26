@@ -6,9 +6,9 @@
 The `SimData` type is the type used to store all the crucial data  used in the OSM simulation module:
      
 **Fields**
-* `bounds` :  bounds of the area map (stored as a OpenStreetMap.Bounds object)
+* `bounds` :  bounds of the area map (stored as a OpenStreetMap2.Bounds object)
 * `nodes` :  dictionary of nodes representing all the objects on the map (with coordinates in East, North, Up system)
-* `roadways` :  unique roads stored as a OpenStreetMap.Way objects
+* `roadways` :  unique roads stored as a OpenStreetMap2.Way objects
 * `intersections` : roads intersections
 * `network` : graph representing a road network in the area limited by *bounds* (with intersections used as vertices)
 * `features` : dictionary of all features (shops, schools, etc.)   
@@ -22,11 +22,11 @@ The `SimData` type is the type used to store all the crucial data  used in the O
 * `googleapi_key` : non obligatory key for using a *Google Distances API*
 """
 mutable struct SimData
-    bounds::OpenStreetMap.Bounds{OpenStreetMap.LLA}
-    nodes::Dict{Int,OpenStreetMap.ENU} 
-    roadways::Array{OpenStreetMap.Way,1}
+    bounds::OpenStreetMap2.Bounds{OpenStreetMap2.LLA}
+    nodes::Dict{Int,OpenStreetMap2.ENU} 
+    roadways::Array{OpenStreetMap2.Way,1}
     intersections::Dict{Int,Set{Int}}
-    network::OpenStreetMap.Network
+    network::OpenStreetMap2.Network
     features::Dict{Int,Tuple{String,String}}
     feature_classes::Dict{String,Int}
     feature_to_intersections::Dict{Int,Int}

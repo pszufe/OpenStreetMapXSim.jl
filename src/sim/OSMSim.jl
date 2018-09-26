@@ -7,7 +7,7 @@ using HTTP
 using JSON
 using CSV
 using SparseArrays
-using Main.OpenStreetMap
+using Main.OpenStreetMap2
 using Serialization
 using Distributed
 using Dates

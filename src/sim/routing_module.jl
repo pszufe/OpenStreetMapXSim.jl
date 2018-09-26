@@ -26,18 +26,18 @@ function get_route(start_node::Int,
                     routing_mode::String)
     if routing_mode == "fastest"
 		if isa(waypoint,Nothing)
-			route_nodes, distance, route_time = OpenStreetMap.fastest_route(sim_data.network, start_node, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap2.fastest_route(sim_data.network, start_node, fin_node)
 		else
-			route_nodes, distance, route_time = OpenStreetMap.fastest_route(sim_data.network, start_node, waypoint, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap2.fastest_route(sim_data.network, start_node, waypoint, fin_node)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)
         return route_nodes
     elseif routing_mode == "shortest"
 		if isa(waypoint,Nothing)
-			route_nodes, distance, route_time = OpenStreetMap.shortest_route(sim_data.network, start_node, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap2.shortest_route(sim_data.network, start_node, fin_node)
 		else
-			route_nodes, distance, route_time = OpenStreetMap.shortest_route(sim_data.network, start_node, waypoint, fin_node)
+			route_nodes, distance, route_time = OpenStreetMap2.shortest_route(sim_data.network, start_node, waypoint, fin_node)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)
@@ -72,11 +72,11 @@ function get_waypoint(start_node::Int,
 					activity::String,
 					sim_data::OSMSim.SimData,
 					exact::Bool)
-	waypoints = OpenStreetMap.filter_graph_features(sim_data.features, sim_data.feature_to_intersections,sim_data.feature_classes,activity)
+	waypoints = OpenStreetMap2.filter_graph_features(sim_data.features, sim_data.feature_to_intersections,sim_data.feature_classes,activity)
 	if exact
-		return waypoint = OpenStreetMap.find_optimal_waypoint_exact(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
+		return waypoint = OpenStreetMap2.find_optimal_waypoint_exact(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
 	else
-		return waypoint = OpenStreetMap.find_optimal_waypoint_approx(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
+		return waypoint = OpenStreetMap2.find_optimal_waypoint_approx(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
 	end
 end
 
