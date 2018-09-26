@@ -22,12 +22,8 @@ The `SimData` type is the type used to store all the crucial data  used in the O
 * `googleapi_key` : non obligatory key for using a *Google Distances API*
 """
 mutable struct SimData
-    bounds::OpenStreetMapX.Bounds{OpenStreetMapX.LLA}
-    nodes::Dict{Int,OpenStreetMapX.ENU} 
-    roadways::Array{OpenStreetMapX.Way,1}
-    intersections::Dict{Int,Set{Int}}
-    network::OpenStreetMapX.Network
-
+	map_data::OpenStreetMapX.MapData
+    
     features::Dict{Int,Tuple{String,String}}
     feature_classes::Dict{String,Int}
     feature_to_intersections::Dict{Int,Int}

@@ -6,7 +6,7 @@
 Route selector
 
 Finds a route by using a choosen mode (fastest, shortest or based on Google Distances API) and returns intersections indeces for the route
-    
+
 **Arguments**
 * `start_node` : unique start node id selected for an agent
 * `waypoint` :  unique  node id of a waypoint or nothing when agent is driving directly from *start_node* to *fin_node*
@@ -19,30 +19,30 @@ Finds a route by using a choosen mode (fastest, shortest or based on Google Dist
 """
 function get_route(start_node::Int,
 					waypoint::Union{Int,Nothing},
-					fin_node::Int, 
+					fin_node::Int,
 					activity::Union{String,Nothing},
                     sim_data::OSMSim.SimData,
                     buffer::Array{OSMSim.Road,1},
                     routing_mode::String)
     if routing_mode == "fastest"
 		if isa(waypoint,Nothing)
-			route_nodes, distance, route_time = OpenStreetMapX.fastest_route(sim_data.network, start_node, fin_node)
+			route_nodes, distance, route_time = OpenStreetMapX.fastest_route(sim_data.map_data.network, start_node, fin_node)
 		else
-			route_nodes, distance, route_time = OpenStreetMapX.fastest_route(sim_data.network, start_node, waypoint, fin_node)
+			route_nodes, distance, route_time = OpenStreetMapX.fastest_route(sim_data.map_data.network, start_node, waypoint, fin_node)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)
         return route_nodes
     elseif routing_mode == "shortest"
 		if isa(waypoint,Nothing)
-			route_nodes, distance, route_time = OpenStreetMapX.shortest_route(sim_data.network, start_node, fin_node)
+			route_nodes, distance, route_time = OpenStreetMapX.shortest_route(sim_data.map_data.network, start_node, fin_node)
 		else
-			route_nodes, distance, route_time = OpenStreetMapX.shortest_route(sim_data.network, start_node, waypoint, fin_node)
+			route_nodes, distance, route_time = OpenStreetMapX.shortest_route(sim_data.map_data.network, start_node, waypoint, fin_node)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)
         return route_nodes
-	else 
+	else
 		if isa(waypoint,Nothing)
 			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, sim_data)
 		else
@@ -58,13 +58,13 @@ end
 Waypoint selector
 
 Selects waypoint by minimizing the length of the route from DA_start by waypoint to DA_fin
-    
+
 **Arguments**
 * `start_node` :  unique start node id selected for an agent
 * `fin_node` :  unique finish node id selected for an agent
 * `activity` : string with category of sought waypoint
 * `sim_data` : `SimData` object
-* `exact` : boolean value indicing how the waypoint will be chosen (with approximate or exact algorithm) 
+* `exact` : boolean value indicing how the waypoint will be chosen (with approximate or exact algorithm)
 
 """
 function get_waypoint(start_node::Int,
@@ -74,29 +74,29 @@ function get_waypoint(start_node::Int,
 					exact::Bool)
 	waypoints = OpenStreetMapX.filter_graph_features(sim_data.features, sim_data.feature_to_intersections,sim_data.feature_classes,activity)
 	if exact
-		return waypoint = OpenStreetMapX.find_optimal_waypoint_exact(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
+		return waypoint = OpenStreetMapX.find_optimal_waypoint_exact(sim_data.map_data.network, sim_data.map_data.network.w, start_node, fin_node, waypoints)
 	else
-		return waypoint = OpenStreetMapX.find_optimal_waypoint_approx(sim_data.network, sim_data.network.w, start_node, fin_node, waypoints)
+		return waypoint = OpenStreetMapX.find_optimal_waypoint_approx(sim_data.map_data.network, sim_data.map_data.network.w, start_node, fin_node, waypoints)
 	end
 end
 
 """
 Route module selector
 
-Selects routing mode for two points from the following options: fastest route, shortest route or google route and returns a node indices of the choosen route 
-    
+Selects routing mode for two points from the following options: fastest route, shortest route or google route and returns a node indices of the choosen route
+
 **Arguments**
 * `DA_start` : unique DA unique id selected for an agent
 * `DA_fin` : unique DA unique id selected for an agent
 * `sim_data` : simulation data struct
-* `DAs_to_intersection` : dictionary mapping each DA to nearest graph node 
+* `DAs_to_intersection` : dictionary mapping each DA to nearest graph node
 * `buffer` : array with already chosen routes stored as a `Road` object
 
 **Assumptions**
 - the probability of selecting each routing mode is equal
 
 """
-function select_route(DA_start::Int, DA_fin::Int, 
+function select_route(DA_start::Int, DA_fin::Int,
                     sim_data::OSMSim.SimData,
                     buffer::Array{OSMSim.Road,1}; google::Bool = false)
     start_node = sim_data.DAs_to_intersection[DA_start]
@@ -113,22 +113,22 @@ function select_route(DA_start::Int, DA_fin::Int,
     else
 		buffer[indice].count += 1
 		return buffer[indice].route
-    end          
+    end
 end
 
 """
 Route module selector for three points
 
-Selects routing mode for three points from the following options: fastest route, shortest route or google route and returns a node indices of the choosen route 
-    
+Selects routing mode for three points from the following options: fastest route, shortest route or google route and returns a node indices of the choosen route
+
 **Arguments**
 * `DA_start` :  unique DA id selected for an agent
 * `DA_fin` :  unique DA id selected for an agent
 * `network` : routing network based on OSM data
-* `DAs_to_intersection` : dictionary mapping each DA to nearest graph node 
+* `DAs_to_intersection` : dictionary mapping each DA to nearest graph node
 * `features` : dictionary with all features existing in simulation
 * `feature_classes` : dictionary mapping each category to proper integer number
-* `feature_to_intersections` : dictionary mapping each feature to nearest graph node 
+* `feature_to_intersections` : dictionary mapping each feature to nearest graph node
 * `buffer` : array with already chosen routes stored as a `Road` object
 
 **Assumptions**
@@ -136,8 +136,8 @@ Selects routing mode for three points from the following options: fastest route,
 -agent is choosing a waypoint based on previously selected activity
 -waypoint is approximately minimizing the length of the route from DA_start by waypoint to DA_fin
 
-"""					
-function select_route(DA_start::Int, DA_fin::Int, 
+"""
+function select_route(DA_start::Int, DA_fin::Int,
                     activity::String,
                     sim_data::OSMSim.SimData,
                     buffer::Array{OSMSim.Road,1}; google::Bool = false)

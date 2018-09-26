@@ -38,47 +38,6 @@ The `colnames` dictionary is used to create the `SimData` object. The role of th
  :flows  => [:DA_I, :DA_J, :Flow_Volume]
  )
 
-
-"""
-Parse .osm file and create the road network based on the map data.
-
-**Arguments**
-* `datapath` : path with an .osm file
-* `filename` : name of .osm file
-* `road_levels` : a set with the road categories (see: OpenStreetMapX.ROAD_CLASSES for more informations)
-"""
-function read_map_file(datapath::String,filename::String; road_levels::Set{Int} = Set(1:length(OpenStreetMapX.ROAD_CLASSES)))
-    #preprocessing map file
-	cachefile = joinpath(datapath,filename*".cache")
-	if isfile(cachefile)
-		f=open(cachefile,"r");
-		res=Serialization.deserialize(f);
-		close(f);
-		@info "Read map data from cache $cachefile"
-	else
-		mapdata = OpenStreetMapX.parseOSM(joinpath(datapath,filename))
-		OpenStreetMapX.crop!(mapdata,crop_relations = false)
-		#preparing data for simulation
-		bounds = mapdata.bounds
-		nodes = OpenStreetMapX.ENU(mapdata.nodes,OpenStreetMapX.center(bounds))
-		highways = OpenStreetMapX.filter_highways(OpenStreetMapX.extract_highways(mapdata.ways))
-		roadways = OpenStreetMapX.filter_roadways(highways, levels= road_levels)
-		intersections = OpenStreetMapX.find_intersections(roadways)
-		segments = OpenStreetMapX.find_segments(nodes,roadways,intersections)
-		network = OpenStreetMapX.create_graph(segments,intersections,OpenStreetMapX.classify_roadways(roadways))
-		#remove unuseful nodes
-		roadways_nodes = unique(vcat(collect(way.nodes for way in roadways)...))
-		nodes = Dict(key => nodes[key] for key in roadways_nodes)
-		res = (bounds,nodes,roadways,intersections,network)
-		f=open(cachefile,"w");
-		Serialization.serialize(f,res);
-		@info "Saved map data to cache $cachefile"
-		close(f);
-	end
-
-    return res
-end
-
 #get features
 """
 Read csv files with informations about features and create a joint data frame.
@@ -136,19 +95,15 @@ Prepare features data objects.
 * `datapath` : path with csv files
 * `filenames` : names of csv files
 * `colnames` : an array of columns which must be included in each file
-* `nodes` : a list of nodes from .osm file
-* `network` : route network graph.
-* `bounds` : map bounds
+* `map_data` : a `OpenStreetMapX.MapData` object
 """
 function get_features_data(datapath::String, filenames::Array{String,1},
                         colnames::Array{Symbol,1},
-                        nodes::Dict{Int,OpenStreetMapX.ENU},
-                        network::OpenStreetMapX.Network,
-                        bounds::OpenStreetMapX.Bounds{OpenStreetMapX.LLA})
+                        map_data::OpenStreetMapX.MapData)
     features_dataframe = OSMSim.read_features_data(datapath, filenames,colnames)
-    features = OSMSim.features_to_nodes(features_dataframe,nodes,bounds)
+    features = OSMSim.features_to_nodes(features_dataframe,map_data.nodes,map_data.bounds)
     feature_classes = Dict{String,Int}(zip(unique(features_dataframe[:CATEGORY]) , Set(1:length(unique(features_dataframe[:CATEGORY])))))
-    feature_to_intersections = OpenStreetMapX.features_to_graph(nodes,features, network)
+    feature_to_intersections = OpenStreetMapX.features_to_graph(map_data.nodes, features, map_data.network)
     return features, feature_classes, feature_to_intersections
 end
 
@@ -160,15 +115,11 @@ Read a csv file with informations about DAs and then for each DA find the neares
 * `datapath` : path with csv files
 * `filename` : name of csv file
 * `colnames` : an array of columns which must be included in each file
-* `nodes` : a list of nodes from .osm file
-* `network` : route network graph.
-* `bounds` : map bounds
+* `map_data` : a `OpenStreetMapX.MapData` object
 """
 function DAs_to_nodes(datapath::String, filename::String,
                     colnames::Array{Symbol,1},
-                    nodes::Dict{Int,OpenStreetMapX.ENU},
-                    network::OpenStreetMapX.Network,
-                    bounds::OpenStreetMapX.Bounds{OpenStreetMapX.LLA})
+                    map_data::OpenStreetMapX.MapData)
     DAframe = Nanocsv.read_csv(joinpath(datapath,filename))
 	  #DataFrame(CSVFiles.load(joinpath(datapath,filename)))
     if !all(in(col, DataFrames.names(DAframe)) for col in colnames)
@@ -177,8 +128,8 @@ function DAs_to_nodes(datapath::String, filename::String,
     DAs_to_nodes = Dict{Int,Int}()
     sizehint!(DAs_to_nodes,DataFrames.nrow(DAframe))
     for i = 1:DataFrames.nrow(DAframe)
-        coords = OpenStreetMapX.ENU(OpenStreetMapX.LLA(DAframe[:LATITUDE][i], DAframe[:LONGITUDE][i]), OpenStreetMapX.center(bounds))
-        DAs_to_nodes[DAframe[:DA_ID][i]] = OpenStreetMapX.nearest_node(nodes,coords,network)
+        coords = OpenStreetMapX.ENU(OpenStreetMapX.LLA(DAframe[:LATITUDE][i], DAframe[:LONGITUDE][i]), OpenStreetMapX.center(map_data.bounds))
+        DAs_to_nodes[DAframe[:DA_ID][i]] = OpenStreetMapX.nearest_node(map_data.nodes,coords,map_data.network)
     end
     return DAs_to_nodes
 end
@@ -326,16 +277,16 @@ function get_sim_data(datapath::String;
 	found_error && error("Some file(s) not found in $datapath")
     @info "All config files found [$(elapsed(startt))s]"
     mapfile = filenames[:osm]
-    bounds,nodes,roadways,intersections,network = OSMSim.read_map_file(datapath, mapfile; road_levels = road_levels)
-    @info "Got read_map_file data [$(elapsed(startt))s]"
+    map_data = OpenStreetMapX.get_map_data(datapath, mapfile; road_levels = road_levels)
+    @info "Got map_data( data [$(elapsed(startt))s]"
     demo_stats = filenames[:demo_stats]
     demographic_data = OSMSim.get_demographic_data(datapath, demo_stats, colnames[:demo_stats])
     @info "Got demo_stats data [$(elapsed(startt))s]"
     features_data = filenames[:features]
-    features, feature_classes, feature_to_intersections = OSMSim.get_features_data(datapath, features_data, colnames[:features], nodes,network,bounds)
+    features, feature_classes, feature_to_intersections = OSMSim.get_features_data(datapath, features_data, colnames[:features], map_data)
     @info "Got feature_to_intersections data [$(elapsed(startt))s]"
     DAs_data = filenames[:DAs]
-    DAs_to_intersection = OSMSim.DAs_to_nodes(datapath, DAs_data, colnames[:DAs], nodes,network, bounds)
+    DAs_to_intersection = OSMSim.DAs_to_nodes(datapath, DAs_data, colnames[:DAs], map_data)
     @info "Got DAs_to_nodes data [$(elapsed(startt))s]"
 	business_stats = filenames[:business_stats]
     business_data = OSMSim.get_business_data(datapath, business_stats, colnames[:business_stats])
@@ -353,10 +304,9 @@ function get_sim_data(datapath::String;
 			read(file, String)
 		end
 	end
-	@info "All data have been read with total of $(length(nodes)) map nodes  [$(elapsed(startt))s]"
-    return OSMSim.SimData(bounds, nodes,
-                    roadways, intersections,
-                    network,features, feature_classes,
+	@info "All data have been read with total of $(length(map_data.nodes)) map nodes  [$(elapsed(startt))s]"
+    return OSMSim.SimData(map_data,
+					features, feature_classes,
                     feature_to_intersections,
                     DAs_to_intersection,
 					demographic_data,

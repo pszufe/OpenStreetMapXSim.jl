@@ -14,12 +14,12 @@ using Nanocsv
 using GLM
 
 function compare_data(datapath::String,mapfile::String,resultfile::String, testfile::String)
-    bounds,nodes,roadways,intersections,network = OSMSim.read_map_file(datapath,mapfile)
+    map_data = OpenStreetMapX.get_map_data(datapath,mapfile)
     frame = DataFrames.DataFrame(Node_ID = Int[],latitude = Float64[], longitude = Float64[], empirical = Int[],simulation = Int[])
     traffic = Nanocsv.read_csv(joinpath(datapath,testfile))
     traffic_data = Dict()
     for i in 1:nrow(traffic)
-        key = OpenStreetMapX.nearest_node(nodes,OpenStreetMapX.ENU(OpenStreetMapX.LLA(traffic[:LATITUDE][i],traffic[:LONGITUDE][i]),bounds),collect(keys(intersections)))
+        key = OpenStreetMapX.nearest_node(map_data.nodes,OpenStreetMapX.ENU(OpenStreetMapX.LLA(traffic[:LATITUDE][i],traffic[:LONGITUDE][i]),map_data.bounds),collect(keys(map_data.intersections)))
         if haskey(traffic_data, key)
             traffic_data[key][:TRAFFIC1][1] += traffic[i,:TRAFFIC1]
         else
