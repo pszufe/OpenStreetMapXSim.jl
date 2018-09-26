@@ -5,9 +5,10 @@
 """
 Demographic profile generator
 
-Creates socio-demographic profile of an agent based on demostats distributions per DA
+Creates socio-demographic profile of an agent based on demostats distributions per dissemination area (DA)
     
 **Arguments**
+
 * `DA_home` : unique id of DA centroid home location selected for an agent
 * `DA_demostat` : dictionary  with population statistics for specific DA
 * `demografic_categories` : dictionary with demografic categories used in generating of agent's profile

@@ -6,11 +6,7 @@
 The `SimData` type is the type used to store all the crucial data  used in the OSM simulation module:
 
 **Fields**
-* `bounds` :  bounds of the area map (stored as a OpenStreetMapX.Bounds object)
-* `nodes` :  dictionary of nodes representing all the objects on the map (with coordinates in East, North, Up system)
-* `roadways` :  unique roads stored as a OpenStreetMapX.Way objects
-* `intersections` : roads intersections
-* `network` : graph representing a road network in the area limited by *bounds* (with intersections used as vertices)
+* `map_data` : data that have been processed from OpenStreetMap osm file
 * `features` : dictionary of all features (shops, schools, etc.)
 * `feature_classes` : dictionary mapping all features with the proper classes
 * `feature_to_intersections` : dictionary mapping all features with the nearest intersection
@@ -22,8 +18,7 @@ The `SimData` type is the type used to store all the crucial data  used in the O
 * `googleapi_key` : non obligatory key for using a *Google Distances API*
 """
 mutable struct SimData
-	map_data::OpenStreetMapX.MapData
-    
+	map_data::OpenStreetMapX.MapData    
     features::Dict{Int,Tuple{String,String}}
     feature_classes::Dict{String,Int}
     feature_to_intersections::Dict{Int,Int}
