@@ -25,11 +25,11 @@ end
 )
 
 
-function find_routes(sim_data::OSMSim.SimData,google = false)::RouteData
+function find_routes(sim_data::OSMSim.SimData,demographic_profile::Function,google = false)::RouteData
     loc = OSMSim.start_location(sim_data.demographic_data)
-    agent = OSMSim.demographic_profile(loc, sim_data.demographic_data[loc])
+    agent = demographic_profile(loc, sim_data.demographic_data[loc])
     OSMSim.destination_location!(agent,sim_data.business_data)
-    activity = OSMSim.additional_activity(sim_data.feature_classes)
+    activity = additional_activity(agent,true,sim_data)
     start_node = sim_data.DAs_to_intersection[agent.DA_home[1]]
     fin_node = sim_data.DAs_to_intersection[agent.DA_work[1]]
     shortest_route,fastest_route,google_route = nothing,nothing,nothing
@@ -56,4 +56,4 @@ end
 
 
 sim_data = get_sim_data(datapath, filenames = files, google = true);
-r = find_routes(sim_data, true)
+r = find_routes(sim_data,demographic_profile, true)

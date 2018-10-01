@@ -6,11 +6,11 @@
 Destination location selector based on DP (Demographic Profile)
 
 Selects destination DA_work for an agent by randomly choosing the company he works in
-    
+
 **Arguments**
 * `agent_profile` : agent demographic profile
 * `business_data` : array with dictionaries  with business location, industry and estimated number of employees
-* `industry` : dictionary matching industry demographic data from business_data with the ones selected 
+* `industry` : dictionary matching industry demographic data from business_data with the ones selected
 
 **Assumptions based on agent demographic profile
 - agents work in the business in accordance with their work_industry
@@ -18,8 +18,8 @@ Selects destination DA_work for an agent by randomly choosing the company he wor
 - differences between maximum number of employees and actual number of employees are used as a probability weights for each workplace location
 """
 function destination_location!(agent_profile::DataFrames.DataFrame,
-                            business_data::Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1};
-                            industry::Dict{String,Array{String,1}} = OSMSim.industry)
+                            business_data::Array{Dict{Symbol,Union{String, Int,UnitRange{Int}}},1},
+                            industry::Dict{String,Array{String,1}})
     indices  = findall((in)(Set(industry[agent_profile.work_industry[1]])),[ds[:ICLS_DESC] for ds in business_data])
     weights = StatsBase.fweights([maximum(business_data[i][:IEMP_DESC]) - business_data[i][:no_of_workers] for i in indices])
     index = StatsBase.sample(indices,weights)
@@ -34,7 +34,7 @@ end
 Destination location selector based on JM (Jurney Matrix)
 
 Selects destination DA_work for an agent randomly weighted by Pij Journey Matrix
-    
+
 **Arguments**
 * `agent_profile` : agent demographic profile
 * `flow_dictionary ` :  Dictionary mapping Pij Journey Matrix columns to DAs
@@ -56,11 +56,11 @@ end
 Destination location selector based on both, JM (Jurney Matrix) and DP (Demographic Profile)
 
 Selects destination DA_work for an agent choosing a proper industry and then by randomly weighted DAs with Pij Journey Matrix
-    
+
 **Arguments**
 * `agent_profile` : agent demographic profile
-* `sim_data ` :  `SimData` object 
-* `industry` : dictionary matching industry demographic data from business_data with the ones selected 
+* `sim_data ` :  `SimData` object
+* `industry` : dictionary matching industry demographic data from business_data with the ones selected
 
 **Assumptions based on agent demographic profile
 - agents work in the business in accordance with their work_industry
@@ -80,4 +80,3 @@ function destination_location!(agent_profile::DataFrames.DataFrame,
     agent_profile.DA_work[1] = DA_work
     return nothing
 end
-    

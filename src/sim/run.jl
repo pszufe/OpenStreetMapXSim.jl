@@ -17,12 +17,13 @@ function run_once!(sim_data::OSMSim.SimData,
                             buffer::Array{OSMSim.Road,1},
                             nodes_stats::Dict{Int,OSMSim.NodeStat},
                             destination_selector::String,
-							agentid::Int;
+							agentid::Int,demographic_profile::Function,
+							additional_activity::Function;
 							weight_var:: Union{Symbol,Nothing} = nothing,
 							google::Bool = false
 							)
     loc = OSMSim.start_location(sim_data.demographic_data, weight_var = weight_var)
-    agent = OSMSim.demographic_profile(loc, sim_data.demographic_data[loc])
+    agent = demographic_profile(loc, sim_data.demographic_data[loc])
     agent[:id]=agentid
     if destination_selector == "flows"
         OSMSim.destination_location!(agent,sim_data.DAs_flow_dictionary,sim_data.DAs_flow_matrix)
@@ -32,7 +33,7 @@ function run_once!(sim_data::OSMSim.SimData,
 		OSMSim.destination_location!(agent,sim_data)
     end
     #before work
-    activity = OSMSim.additional_activity(sim_data.feature_classes)
+    activity = additional_activity(agent,true,sim_data)
     if isa(activity,Nothing)
         routebefore = OSMSim.select_route(agent.DA_home[1], agent.DA_work[1],sim_data, buffer, google = google)
     else
@@ -41,7 +42,7 @@ function run_once!(sim_data::OSMSim.SimData,
     OSMSim.stats_aggregator!(nodes_stats, agent, routebefore)
     local routeafter
     #after work
-    activity = OSMSim.additional_activity(sim_data.feature_classes)
+    activity = additional_activity(agent,false,sim_data)
     if isa(activity,Nothing)
         routeafter = OSMSim.select_route(agent.DA_work[1], agent.DA_home[1], sim_data, buffer,google = google)
     else
@@ -60,14 +61,18 @@ Run simulation for data stored in `SimData` object
 * `sim_data` : `SimData` object
 * `destination_selector` : string determining a way how the destination (workplace) will be selected (based on journey matrix, business data or on both)
 * `N` : number of iterations
+* `demographic_profile` : function generating a demographic profile on the base of DA_home and DA_demostat
+* `additional_activity` : function generating an additional_activity on the base agents profile and direction
 * `weight_var` : weighting variable name (or nothing)
 * `google` : boolean variable; if true simulation will generates routes based on Google Distances API
 """
 function run_simulation(sim_data::OSMSim.SimData,
             destination_selector::String,
 			job::Int,
-            N::Int;
-			weight_var::Union{Symbol,Nothing} = OSMSim.weight_var,
+            N::Int,
+			demographic_profile::Function,
+			additional_activity::Function,
+			weight_var::Union{Symbol,Nothing};
 			google::Bool = false)
 	if !in(destination_selector,["flows","business","both"])
 		error("destination_selector not declared properly! It can only takes flows, business or both values!")
@@ -80,10 +85,65 @@ function run_simulation(sim_data::OSMSim.SimData,
     Random.seed!(job);
     for i = 1:N
         agentid = (job*1000000) + i
-        routes[agentid] = OSMSim.run_once!(sim_data,buffer,nodes_stats,destination_selector,agentid, weight_var = weight_var, google = google)
+        routes[agentid] = OSMSim.run_once!(sim_data,buffer,nodes_stats,destination_selector,agentid,demographic_profile,additional_activity, weight_var = weight_var, google = google)
 		i == 1 && @info "Worker: $(Distributed.myid()) First out of $N simulation completed"
     end
     #$(Distributed.myid())
 	@info "Worker: $(Distributed.myid()) All $N sims completed with time per sim = $((Dates.now()-startt).value/N)ms"
     return nodes_stats,buffer,routes
+end
+
+
+
+
+function run_dist_sim(resultspath,version::String,master_ID::Int,N::Int,max_jobs_worker::Int,
+					  sim_data::OSMSim.SimData, mode::String,
+					  demographic_profile,additional_activity,weight_var;
+					  s3action::Union{Function,Nothing}=nothing)
+	for ii in 1:max_jobs_worker
+	    d = master_ID*max_jobs_worker+ii;
+	    nodes, buffer,routes = run_simulation(sim_data, mode, d, N,
+		        demographic_profile,additional_activity,weight_var);
+
+		# add nodeids and distributed.myid to nodes statistics
+		nodeids = collect(keys(nodes));
+		for i in nodeids
+			if nodes[i].agents_data != nothing
+				insert!(nodes[i].agents_data, 1, nodes[i].latitude, :latitude)
+				insert!(nodes[i].agents_data, 1, nodes[i].longitude, :longitude)
+				insert!(nodes[i].agents_data, 1, i, :NODE_ID)
+				insert!(nodes[i].agents_data, 1, Distributed.myid(), :DISTRIBUTED_ID)
+			else
+				delete!(nodes, i)
+			end
+		end
+
+	    # merge results
+		results = collect(values(nodes))[1].agents_data
+		for df in collect(values(nodes))[2:end]
+	       append!(results, df.agents_data)
+	    end
+	    filenamebase="res_V$(version)_M$(mode)_W$(@sprintf("%04d", Distributed.myid()))_S$(@sprintf("%05d",d))"
+	    filenodes  = "$(filenamebase)_nodes.csv"
+	    targetfile=joinpath(resultspath,filenodes)
+		Nanocsv.write_csv(targetfile,results, delim = ';')
+		s3action != nothing && s3action(resultspath, filenodes)
+	    fileroutes = "$(filenamebase)_routes.csv"
+	    f = open(joinpath(resultspath, fileroutes),"w")
+	    for agentid in keys(routes)
+	        mode = "towork"
+	        for rset in routes[agentid]
+	            print(f,"$(agentid);$(mode)")
+	            for nn in rset
+	               print(f,";$nn")
+	            end
+	            println(f,"")
+	            mode = "tohome"
+	        end
+	    end
+	    close(f)
+	    s3action != nothing && s3action(resultspath, fileroutes)
+		@info "Results exported for worker $(myid()) seed $d to: $targetfile"
+	    #1
+	end
 end
