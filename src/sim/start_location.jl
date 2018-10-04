@@ -11,7 +11,7 @@ Selects starting DA centroid for an agent randomly weighted by weight_var (when 
 * `demostat` : dictionary with socio-demographic profile of each DA
 * `weight_var` : weighting variable name (or nothing)
 """
-function start_location(demostat::Dict{Int,Dict{Symbol,Int}}; weight_var::Union{Symbol,Nothing} = nothing)
+function start_location(demostat::Dict{Int,Union{Nothing,Dict{Symbol,Int}}}; weight_var::Union{Symbol,Nothing} = nothing)
 	if isa(weight_var, Nothing)
 		return rand(keys(demostat))
 	else

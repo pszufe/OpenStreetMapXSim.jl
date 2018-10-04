@@ -44,9 +44,9 @@ function get_route(start_node::Int,
         return route_nodes
 	else
 		if isa(waypoint,Nothing)
-			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, sim_data)
+			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, sim_data.map_data, sim_data.googleapi_key)
 		else
-			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, waypoint, sim_data)
+			route_nodes,routing_mode = OSMSim.get_google_route(start_node, fin_node, waypoint, sim_data.map_data, sim_data.googleapi_key)
 		end
         road = OSMSim.Road(start_node,fin_node, activity, routing_mode,route_nodes, 1)
         push!(buffer,road)

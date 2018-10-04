@@ -14,15 +14,15 @@ Creates socio-demographic profile of an agent based on demostats distributions p
 * `demographic_categories` : dictionary with demographic categories used in generating of agent's profile
 
 """
-function demographic_profile(DA_home::Int, DA_demostat::Dict{Symbol,Int};
-							demographic_categories::Dict{Symbol,Dict})::DataFrames.DataFrame
+function demographic_profile(DA_home::Int, DA_demostat::Nothing;
+							demographic_categories = demographic_categories)::DataFrames.DataFrame
 	profile = Dict()
 	profile[:DA_home] = DA_home
 	profile[:DA_work] = 0
 	for key in keys(demographic_categories)
 		categories = demographic_categories[key]
-		weights = StatsBase.fweights(get.(Ref(DA_demostat), collect(keys(categories)), 0))
-		value = StatsBase.sample(collect(values(categories)), weights)
+		category = rand(keys(categories))
+		value = categories[category]
 		if isa(value,UnitRange)
 			profile[key] = rand(value)
 		else
