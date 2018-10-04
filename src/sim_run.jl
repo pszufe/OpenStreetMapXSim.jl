@@ -19,8 +19,8 @@ begin
     using DataFrames
     path = "sim/";
     datapath = "../datasetsos/";
-    include(joinpath(path,"OSMSim.jl"))
-    using Main.OSMSim
+    include(joinpath(path,"OpenStreetMapXSim.jl"))
+    using Main.OpenStreetMapXSim
     sim_mode = "flows";
     version="002"
     resultspath="/home/ubuntu/results/"
@@ -33,4 +33,4 @@ end
 include("simparams/_loadparams.jl")
 sim_data = get_sim_data(datapath);
 
-OSMSim.run_dist_sim(resultspath,version,1,N,max_jobs_worker,sim_data, sim_mode,demographic_profile,additional_activity,nothing,s3action=nothing)
+OpenStreetMapXSim.run_dist_sim(resultspath,version,1,N,max_jobs_worker,sim_data, sim_mode,demographic_profile,additional_activity,nothing,s3action=nothing)

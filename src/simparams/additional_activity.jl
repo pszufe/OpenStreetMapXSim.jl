@@ -12,7 +12,7 @@ returns a category of additional activity choosen by agent.
  -otherwise waypoint type is chosen randomly from the features categories
 """
 function additional_activity(agent_profile::DataFrames.DataFrame, before::Bool,
-	                         sim_data::OSMSim.SimData)
+	                         sim_data::OpenStreetMapXSim.SimData)
 	if rand() < 0.5
 		return nothing
 	else

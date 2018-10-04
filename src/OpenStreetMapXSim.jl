@@ -1,4 +1,4 @@
-module OSMSim
+module OpenStreetMapXSim
 
 
 using DataFrames
@@ -20,12 +20,12 @@ export node_statistics, stats_aggregator!
 export run_simulation
 export reduce_results
 
-include("types.jl")
-include("start_location.jl")
-include("destination_location.jl")
-include("routing_module.jl")
-include("statistics_aggregator.jl")
-include("run.jl")
-include("reduce.jl")
+include("sim/types.jl")
+include("sim/start_location.jl")
+include("sim/destination_location.jl")
+include("sim/routing_module.jl")
+include("sim/statistics_aggregator.jl")
+include("sim/run.jl")
+include("sim/reduce.jl")
 
 end

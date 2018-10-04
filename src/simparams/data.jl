@@ -146,7 +146,7 @@ Read data files and create a `SimData` object
 """
 function get_sim_data(datapath::String;
                     road_levels::Set{Int} = Set(1:length(OpenStreetMapX.ROAD_CLASSES)),
-					google::Bool = false)::OSMSim.SimData
+					google::Bool = false)::OpenStreetMapXSim.SimData
     startt = Dates.now()
     files = collect(values(filenames))
     files = vcat(files...)
@@ -184,7 +184,7 @@ function get_sim_data(datapath::String;
 		end
 	end
 	@info "All data have been read with total of $(length(map_data.nodes)) map nodes  [$(elapsed(startt))s]"
-    return OSMSim.SimData(map_data,
+    return OpenStreetMapXSim.SimData(map_data,
 					features, feature_classes,
                     feature_to_intersections,
                     DAs_to_intersection,

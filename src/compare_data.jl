@@ -1,14 +1,14 @@
-pth = "C:\\Users\\p\\Desktop\\OSMsim.jl\\src\\osm"
-path = "C:\\Users\\p\\Desktop\\OSMsim.jl\\src\\sim"
+pth = "C:\\Users\\p\\Desktop\\OpenStreetMapXSim.jl\\src\\osm"
+path = "C:\\Users\\p\\Desktop\\OpenStreetMapXSim.jl\\src\\sim"
 datapath = "C:\\Users\\p\\Desktop\\datasets\\"
 
 datafile = "SAMPLE_WinnipegCMA_TRAFCAN2017Q1.csv"
 sim_results = "counts.csv"
 mapfile = "Winnipeg CMA.osm"
 
-include(joinpath(path,"OSMsim.jl"))
+include(joinpath(path,"OpenStreetMapXSim.jl"))
 
-using Main.OSMSim
+using Main.OpenStreetMapXSim
 using DataFrames
 using Nanocsv
 using GLM

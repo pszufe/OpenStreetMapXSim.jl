@@ -1,5 +1,5 @@
 ####################################
-### Types used in OSMsim package ###
+### Types used in OpenStreetMapXSim package ###
 ####################################
 
 """

@@ -68,8 +68,8 @@ Selects destination DA_work for an agent choosing a proper industry and then by 
 - then probability of selecting one of possible businesses is weighted by flows from DA_home to DA corresponding to each business
 """
 function destination_location!(agent_profile::DataFrames.DataFrame,
-                            sim_data::OSMSim.SimData;
-                            industry::Dict{String,Array{String,1}} = OSMSim.industry)
+                            sim_data::OpenStreetMapXSim.SimData;
+                            industry::Dict{String,Array{String,1}} = OpenStreetMapXSim.industry)
     row = sim_data.DAs_flow_dictionary[agent_profile.DA_home[1]]
     indices  = findall((in)(Set(industry[agent_profile.work_industry[1]])), [ds[:ICLS_DESC] for ds in sim_data.business_data])
     columns = [sim_data.DAs_flow_dictionary[sim_data.business_data[index][:DA_ID]] for index in indices if haskey(sim_data.DAs_flow_dictionary,sim_data.business_data[index][:DA_ID])]

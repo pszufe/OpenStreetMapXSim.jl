@@ -10,12 +10,12 @@ Creates a dictionary with keys as unique intersections ids and values as NodeSta
 * `sim_data` : `SimData` object used in sumulation
 
 """
-function node_statistics(sim_data::OSMSim.SimData)::Dict{Int,OSMSim.NodeStat}
-    nodes_stats = Dict{Int,OSMSim.NodeStat}()
+function node_statistics(sim_data::OpenStreetMapXSim.SimData)::Dict{Int,OpenStreetMapXSim.NodeStat}
+    nodes_stats = Dict{Int,OpenStreetMapXSim.NodeStat}()
     for (key,value) in sim_data.map_data.intersections
         coords = OpenStreetMapX.LLA(sim_data.map_data.nodes[key],OpenStreetMapX.center(sim_data.map_data.bounds))
         latitude, longitude = coords.lat, coords.lon
-        nodes_stats[key] = OSMSim.NodeStat(0,latitude,longitude,nothing)
+        nodes_stats[key] = OpenStreetMapXSim.NodeStat(0,latitude,longitude,nothing)
     end
     return nodes_stats
 end
@@ -32,7 +32,7 @@ Aggregates data for each route intersection
 * `route` : route represented by nodes ids
 
 """
-function stats_aggregator!(nodes_stats::Dict{Int,OSMSim.NodeStat},
+function stats_aggregator!(nodes_stats::Dict{Int,OpenStreetMapXSim.NodeStat},
                         agent_profile::DataFrames.DataFrame,
                         route::Array{Int,1} )
     for indice in route
