@@ -2,7 +2,9 @@
 
 OpenStreetMapXSim - map simulations library
 
-This is a proof-of-concept beta version.
+This is a proof-of-concept beta WIP version.
+
+
 
 ## Installation
 
@@ -23,4 +25,7 @@ Pkg.add(PackageSpec(url="https://github.com/bkamins/Nanocsv.jl"))
 #optionally add for plotting:
 Pkg.add(PackageSpec(url="https://github.com/pszufe/OpenStreetMapXPlot.jl"))
 ```
-
+In order to install this library itself:
+```julia
+Pkg.add(PackageSpec(url="https://github.com/pszufe/OpenStreetMapXSim.jl"))
+```
