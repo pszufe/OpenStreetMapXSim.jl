@@ -2,7 +2,9 @@
 
 OpenStreetMapXSim - map simulations library
 
-This is a proof-of-concept beta WIP version.
+This is a proof-of-concept prototype WIP version.
+
+Please note that the datasets are currently not part of this repository. 
 
 
 
@@ -29,3 +31,9 @@ In order to install this library itself:
 ```julia
 Pkg.add(PackageSpec(url="https://github.com/pszufe/OpenStreetMapXSim.jl"))
 ```
+
+
+
+#### Acknowledgments
+
+The creation of this source code was partially financed by research  project supported by the Ontario Centres of Excellence ("OCE") under  Voucher for Innovation and Productivity (VIP) program, OCE Project  Number: 30293, project name: "Agent-based simulation modelling of  out-of-home advertising viewing opportunity conducted in cooperation  with Environics Analytics of Toronto, Canada. 

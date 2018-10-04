@@ -17,14 +17,11 @@ begin
     using Nanocsv
     using OpenStreetMapX
     using DataFrames
-    path = "sim/";
-    datapath = "../datasetsos/";
-    include(joinpath(path,"OpenStreetMapXSim.jl"))
-    using Main.OpenStreetMapXSim
+    using OpenStreetMapXSim
     sim_mode = "flows";
     version="002"
     resultspath="/home/ubuntu/results/"
-
+    datapath = "/home/ubuntu/datasets/"
 
     N = 100;
     max_jobs_worker=1

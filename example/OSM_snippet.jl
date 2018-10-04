@@ -1,10 +1,7 @@
-path = "sim/";
-datapath = "../../datasets/";
+
+datapath = "/home/ubuntu/datasets/"
 using OpenStreetMapX
-
-include(path*"OpenStreetMapXSim.jl")
-
-using Main.OpenStreetMapXSim
+using OpenStreetMapXSim
 
 mutable struct RouteData
     shortest_route
@@ -43,8 +40,5 @@ function find_routes(sim_data::OpenStreetMapXSim.SimData,demographic_profile::Fu
 end
 
 include("simparams/_loadparams.jl")
-datapath = "../datasetsos/";
 sim_data = get_sim_data(datapath);
-
-datapath = "../datasetsos/";
 r = find_routes(sim_data,demographic_profile, true)
