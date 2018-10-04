@@ -82,7 +82,7 @@ function get_grouped_hist(dataframe::DataFrames.DataFrame,nbars::Int, title::Str
  
 end
 
-dataframe = get_comparision_dataset(datapath,mapfile,resultfile,filename,false);
+dataframe = get_comparision_dataset(datapath,mapfile,sim_results,datafile,false);
 
 get_grouped_hist(dataframe,20, "Overall Traffic Count")
 get_grouped_hist(dataframe[dataframe[:count_type] .== "AADT",:],20, "Traffic Count - AADT Only")
